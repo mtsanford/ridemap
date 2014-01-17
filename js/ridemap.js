@@ -1,3 +1,5 @@
+
+
 $( document ).ready(function() {
 	Ridemap.initialize('map-canvas');
 });
@@ -15,13 +17,8 @@ Ridemap.initialize = function(id) {
 	Ridemap.utils.listenMetaKeys();
 	Ridemap.routes = [];
 	Ridemap.activeRoute = 0;
-	Ridemap.map	= new google.maps.Map(
-		document.getElementById(id), {
-			center: new google.maps.LatLng(37.4419, -122.1419),
-			zoom: 6,
-			mapTypeId: google.maps.MapTypeId.ROADMAP,
-		}
-	);
+	Ridemap.element = document.getElementById(id);
+	Ridemap.map	= new google.maps.Map(Ridemap.element, { mapTypeId: google.maps.MapTypeId.ROADMAP });
 	$.ajax({
 		url: 'getroutes.php',
 		dataType: 'json',
