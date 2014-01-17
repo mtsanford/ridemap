@@ -1,12 +1,17 @@
+$( document ).ready(function() {
+	Ridemap.initialize('map-canvas');
+});
+
+
 var Ridemap = {};
 
 // Ridemap.routes[].status:
 // 0 - unloaded
 // 1 - load pending
 // 2 - loaded
-// 3 - route displayed
 
 Ridemap.initialize = function(id) {
+	Ridemap.params = Ridemap.utils.getUrlParameters(['label', 'tag', 'region', 'wheelzoom']);
 	Ridemap.utils.listenMetaKeys();
 	Ridemap.routes = [];
 	Ridemap.activeRoute = 0;
@@ -14,7 +19,7 @@ Ridemap.initialize = function(id) {
 		document.getElementById(id), {
 			center: new google.maps.LatLng(37.4419, -122.1419),
 			zoom: 6,
-			mapTypeId:	google.maps.MapTypeId.ROADMAP,
+			mapTypeId: google.maps.MapTypeId.ROADMAP,
 		}
 	);
 	$.ajax({
@@ -26,17 +31,28 @@ Ridemap.initialize = function(id) {
 
 // Callback when route list is fetched
 Ridemap.onRoutesFetched = function(data) {
+
+	// set region of map displayed
+	var r = (Ridemap.params.region) ? Ridemap.params.region.split(',')
+	        : [ data.bounds.south, data.bounds.west, data.bounds.north, data.bounds.east ];
+	Ridemap.map.fitBounds(new google.maps.LatLngBounds(
+		new google.maps.LatLng(parseFloat(r[0]), parseFloat(r[1])),
+		new google.maps.LatLng(parseFloat(r[2]), parseFloat(r[3]))
+	));
+
 	data.routes.forEach(function(route) {
 		Ridemap.routes[route.ID] = route;
 		route.status = 0;
-		
-		var marker = new google.maps.Marker({
+		route.infoWindow = new google.maps.InfoWindow({
+			content: "<p>loading...</p>",
+		});
+		route.marker = new google.maps.Marker({
 			position: Ridemap.utils.parseLatLng(route.marker_pos),
 			map: Ridemap.map,
 			title : route.caption
 		});
 		
-		Ridemap.setClickListener(marker, route.ID);
+		Ridemap.setClickListener(route.marker, route.ID);
 	});
 };
 
@@ -45,11 +61,8 @@ Ridemap.onRoutesFetched = function(data) {
 // a closure
 Ridemap.setClickListener = function(marker, routeID) {
 	var route = Ridemap.routes[routeID];
-	route.infoWindow = new google.maps.InfoWindow({
-		content: "<p>loading...</p>",
-		maxWidth: 256
-	});
 	google.maps.event.addListener(marker, 'click', function(event) {
+		route.infoWindow.open(Ridemap.map, marker);
 		if (Ridemap.activeRoute != routeID) {
 			if (Ridemap.activeRoute) {
 				Ridemap.routes[Ridemap.activeRoute].infoWindow.close();
@@ -62,9 +75,7 @@ Ridemap.setClickListener = function(marker, routeID) {
 				});
 			}
 			Ridemap.activeRoute = routeID;
-			route.infoWindow.open(Ridemap.map, marker);
 			Ridemap.fullyLoadRoute(routeID, function() {
-				route.infoWindow.setContent(route.infoHTML);
 				route.line.setVisible(true);
 			});
 		}
@@ -94,13 +105,15 @@ Ridemap.fullyLoadRoute = function(routeID, callback) {
 					visible: false,
 					map: Ridemap.map
 				});
-				route.infoHTML = Ridemap.makeInfoHTML(route);
+				route.infoWindow.setContent(Ridemap.makeInfoHTML(route));
 				callback();
 			}
 		});
 	} else if (Ridemap.routes[routeID].status == 1) {
 		// Do nothing.
-		//TODO really should cue up callbacks?
+		// TODO really should cue up callbacks?  Right now just expecting 
+		// caller to check status before calling
+		// and not call if status == 1
 	} else {
 		// status >= 2, already loaded
 		callback();
@@ -143,4 +156,14 @@ Ridemap.utils = {
 		$(window).keydown(set).keyup(set);
 	},
 	ctrlDown: false,
+	getUrlParameters: function(params) {
+		var values = {};
+		params.forEach(function(param) {
+			values[param] = Ridemap.utils.getURLParameter(param);
+		});
+		return values;
+	},
+	getURLParameter: function(name) {
+		return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||null;
+	}
 };

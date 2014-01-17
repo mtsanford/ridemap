@@ -2,3 +2,50 @@ html, body, #map-canvas {
 	height:	100%;
 	margin: 0; 
 }
+
+.rm_tooltip {
+background-color: #eeeeee;
+font-weight: bold;
+border: 2px #ababab solid;
+padding: .5mm;
+}
+
+.rm_infodiv {
+width:256px;
+}
+
+.rm_picture a:link {
+text-decoration:none;
+border-style:none !important;
+border-width:thin;
+color:#000000;
+}
+.rm_picture a:visited {
+text-decoration:none;
+border-style:none !important;
+border-width:thin;
+color:#000000;
+}
+.rm_picture a:hover {
+text-decoration:none;
+border-style:none !important;
+border-width:thin;
+color:#CC9900;
+}
+.rm_picture {
+border:0;
+text-align:center
+}
+.rm_img {
+border:0;
+text-align:center
+}
+
+.rm_caption {
+font-size:large;
+text-align:center
+}
+.rm_description {
+font-size:small;
+text-align:center
+}
