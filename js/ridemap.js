@@ -1,3 +1,10 @@
+/**
+* Ridemap
+*
+* Copyright (C) 2014 Mark T. Sanford
+* Licensed under GNU GENERAL PUBLIC LICENSE version 2
+* see http://www.gnu.org/licenses/gpl-2.0.txt for more information
+*/
 
 
 $( document ).ready(function() {
@@ -19,8 +26,14 @@ Ridemap.initialize = function(id) {
 	Ridemap.activeRoute = 0;
 	Ridemap.element = document.getElementById(id);
 	Ridemap.map	= new google.maps.Map(Ridemap.element, { mapTypeId: google.maps.MapTypeId.ROADMAP });
+	
+	// The route set to include in the map can be restricted by tag OR by region
+	var routeFetchURI = 'getroutes.php'
+	        + (Ridemap.params.tag ? ('?tag=' + Ridemap.params.tag) :
+		      (Ridemap.params.region ? ('?region=' + Ridemap.params.region) : ''));
+
 	$.ajax({
-		url: 'getroutes.php',
+		url: routeFetchURI,
 		dataType: 'json',
 		success: Ridemap.onRoutesFetched
 	});

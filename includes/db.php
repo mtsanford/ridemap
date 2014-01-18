@@ -1,22 +1,21 @@
 <?php
-
-$db_connected = false;
+/**
+* Ridemap
+*
+* Copyright (C) 2014 Mark T. Sanford
+* Licensed under GNU GENERAL PUBLIC LICENSE version 2
+* see http://www.gnu.org/licenses/gpl-2.0.txt for more information
+*/
 
 function DB_Connect()
 {
-	global $db_connected;
+	global $db, $db_host, $db_username, $db_password, $db_database;
+	static $db;
 	
-	if ($db_connected)
-		return true;
+	if (!empty($db))
+		return $db;
 
-	global $db_host, $db_username, $db_password, $db_database;
-	
-    mysql_connect($db_host,$db_username,$db_password);
-    if (@mysql_select_db($db_database) == false)
-		return false;
-	
-	$db_connected = true;
-	
-	return true;
+	$db = mysqli_connect($db_host, $db_username, $db_password, $db_database);
+	return $db;
 }
 
