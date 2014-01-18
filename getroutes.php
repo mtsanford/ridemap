@@ -42,10 +42,9 @@
 	 *
 	 */
 	 
-	require_once 'global.php';
 	require_once 'config.php';
-	require_once (RMINCLUDEDIR . 'db.php');
-	require_once (RMINCLUDEDIR . 'websnapr.php');
+	require_once (dirname(__FILE__) . '/includes/db.php');
+	require_once (dirname(__FILE__) . '/includes/websnapr.php');
 
 	$db = DB_Connect() or die("could not connect to database");
 
