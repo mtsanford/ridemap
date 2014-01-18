@@ -41,7 +41,6 @@ Ridemap.initialize = function(id) {
 
 // Callback when route list is fetched
 Ridemap.onRoutesFetched = function(data) {
-
 	// set region of map displayed
 	var r = (Ridemap.params.region) ? Ridemap.params.region.split(',')
 	        : [ data.bounds.s, data.bounds.w, data.bounds.n, data.bounds.e ];
@@ -103,7 +102,7 @@ Ridemap.fullyLoadRoute = function(routeID, callback) {
 			url: 'getroutes.php?q=' + routeID,
 			dataType: 'json',
 			success: function(data) {
-				$.extend(route, data[0]);
+				$.extend(route, data['routes'][0]);
 				route.status = 2;
 				route.line = new google.maps.Polyline({
 					path: google.maps.geometry.encoding.decodePath(route.encoded_polyline),
