@@ -44,7 +44,7 @@ Ridemap.onRoutesFetched = function(data) {
 
 	// set region of map displayed
 	var r = (Ridemap.params.region) ? Ridemap.params.region.split(',')
-	        : [ data.bounds.south, data.bounds.west, data.bounds.north, data.bounds.east ];
+	        : [ data.bounds.s, data.bounds.w, data.bounds.n, data.bounds.e ];
 	Ridemap.map.fitBounds(new google.maps.LatLngBounds(
 		new google.maps.LatLng(parseFloat(r[0]), parseFloat(r[1])),
 		new google.maps.LatLng(parseFloat(r[2]), parseFloat(r[3]))

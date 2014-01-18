@@ -37,7 +37,7 @@
 	 *       ],
 	 *       // Geographic bounds for the entire set of routes.  No bounds property given
 	 *       // if region parameter was specified, or just a single route requested
-	 *       bounds: {"south":"32.9347","west":"-124.403","north":"42.4278","east":"-114.037"}
+	 *       bounds: {"s":"32.9347","w":"-124.403","n":"42.4278","e":"-114.037"}
 	 *     }
 	 *
 	 */
@@ -48,9 +48,9 @@
 
 	$db = DB_Connect() or die("could not connect to database");
 
-	// Try to a cached response for a cached getroutes.php response
-	// $qs = URI query string
-	function RouteCache_Read($qs)
+	// Fetch a subset of routes, based on URI query string $qs
+	// Try to fetch cached data first.
+	function FetchRouteSet($qs)
 	{
 		global $db;
 		
@@ -61,7 +61,7 @@
 			$record = $result->fetch_object();
 			return $record->json;
 		} else {
-			$output = FetchRoutesJSON($qs);
+			$output = FetchRouteSet_DoQuery($qs);
 			$json = $db->real_escape_string($output);
 			$query = "INSERT INTO cache (query, json) VALUES ( '{$qs}', '{$json}');";
 			mysqli_query($db, $query);
@@ -71,42 +71,41 @@
 	
 	// Perform an actual query on a subset of routes, based on
 	// region, tag, or all routes.   Calculate the geographic 
-	// bounds of the set (except if region is specified)
-	function FetchRoutesJSON($qs)
+	// bounds of the set.
+	function FetchRouteSet_DoQuery($qs)
 	{
 		global $db;
-		$getbounds = false;
 		
 		if ( strpos($qs, 'region=') === 0 ) {
 			$c = explode(',', substr($qs, 7));
-			$query = "SELECT ID, caption, marker_pos FROM routes WHERE
-				(bound_south < {$c[2]}) AND (bound_west < {$c[3]})
-				AND (bound_north > {$c[0]}) AND (bound_east > {$c[1]});";
+			$query = "SELECT ID, caption, marker_pos, bound_west, bound_east, bound_north, bound_south
+			          FROM routes
+					  WHERE (bound_south < {$c[2]}) AND (bound_west < {$c[3]})
+			                AND (bound_north > {$c[0]}) AND (bound_east > {$c[1]});";
 		} else if ( strpos($qs, 'tag=') === 0 ) {
-			$getbounds = true;
 			$c = explode(',', strtolower(substr($qs, 4)));
 			$cc = count($c);
 			$query = "SELECT r1.ID, caption, marker_pos, bound_west, bound_east, bound_north, bound_south
-				FROM routes r1
-				INNER JOIN tags t1 
-				ON r1.ID = t1.ID WHERE
-				t1.tag IN ('" . implode("','", $c) . "')
-				GROUP BY r1.ID
-				HAVING COUNT(*) = {$cc};";
+			          FROM routes r1
+			          INNER JOIN tags t1 
+			          ON r1.ID = t1.ID WHERE
+			          t1.tag IN ('" . implode("','", $c) . "')
+			          GROUP BY r1.ID
+			          HAVING COUNT(*) = {$cc};";
 		} else {
-			$getbounds = true;
-			$query="SELECT ID, caption, marker_pos, bound_west, bound_east, bound_north, bound_south FROM routes";
+			$query = "SELECT ID, caption, marker_pos, bound_west, bound_east, bound_north, bound_south
+			          FROM routes";
 		}
 
 		$result = mysqli_query($db, $query);
 		if (!$result || $result->num_rows == 0 )
 			return "";
 
-	    // Start with the whole world, and narrow from there
-		$s = 90; $w = 180; $n = -90; $e = -180;
+		$out = array(
+			'routes' => array(),
+			'bounds' => array('s' => 90, 'w' => 180, 'n' => -90, 'e' => -180),
+		);
 
-		$out = array();
-		$out['routes'] = array();
 		for ($i=0; $i < $result->num_rows; $i++) {
 			$record = $result->fetch_object();
 			$out['routes'][$i] = array();
@@ -114,20 +113,10 @@
 			$out['routes'][$i]['caption'] = $record->caption;
 			$out['routes'][$i]['marker_pos'] = $record->marker_pos;
 
-			if ($getbounds) {
-				if ($record->bound_south < $s) $s = $record->bound_south;
-				if ($record->bound_west < $w) $w = $record->bound_west;
-				if ($record->bound_north > $n) $n = $record->bound_north;
-				if ($record->bound_east > $e) $e = $record->bound_east;
-			}
-		}
-	
-		if ($getbounds) {
-			$out['bounds'] = array();
-			$out['bounds']['south'] = $s;
-			$out['bounds']['west'] = $w;
-			$out['bounds']['north'] = $n;
-			$out['bounds']['east'] = $e;
+			$out['bounds']['s'] = min($out['bounds']['s'], $record->bound_south);
+			$out['bounds']['w'] = min($out['bounds']['w'], $record->bound_west);
+			$out['bounds']['n'] = max($out['bounds']['n'], $record->bound_north);
+			$out['bounds']['e'] = max($out['bounds']['e'], $record->bound_east);
 		}
 
 		return json_encode($out);
@@ -144,7 +133,7 @@
 		else if (isset($_GET['tag'])) {
 			$query = 'tag=' . $_GET['tag'];
 		}
-		$output = RouteCache_Read($query);
+		$output = FetchRouteSet($query);
 	} else {
 	    $value = array();
 
@@ -187,7 +176,7 @@
 			if ($editmode) {
 				//! we will fail if selector is label...
 				$query = "SELECT tag FROM tags WHERE ID = {$_GET['q']};";
-				$result = @mysqli_query($db, $query);
+				$result = mysqli_query($db, $query);
 				$tags = array();
 				while ($row = $result->fetch_object()) {
 					$tags[] = $row->tag;
