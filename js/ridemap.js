@@ -7,18 +7,11 @@
 *
 */
 
-
-$( document ).ready(function() {
-	Ridemap.initialize();
-	var ridemap = new Ridemap('map-canvas');
-});
-
-// Ridemap.routes[].status:
-// 0 - unloaded
-// 1 - load pending
-// 2 - loaded
-
-var Ridemap = function(id) {
+// Create a ridemap on the elemenent with specified ID.   Options
+// can be specified using opts, or if missing URL query parameters
+// will be used.
+var Ridemap = function(id, opts) {
+	this.opts = opts || Ridemap.utils.getUrlParameters(['q', 'label', 'tag', 'region', 'wheelzoom']);
 	this.routes = [];
 	this.activeRoute = 0;
 	this.element = document.getElementById(id);
@@ -26,8 +19,8 @@ var Ridemap = function(id) {
 	
 	// The route set to include in the map can be restricted by tag OR by region
 	var routeFetchURI = 'getroutes.php'
-	        + (Ridemap.params.tag ? ('?tag=' + Ridemap.params.tag) :
-		      (Ridemap.params.region ? ('?region=' + Ridemap.params.region) : ''));
+	        + (this.opts.tag ? ('?tag=' + this.opts.tag) :
+		      (this.opts.region ? ('?region=' + this.opts.region) : ''));
 
 	$.ajax({
 		url: routeFetchURI,
@@ -42,7 +35,7 @@ Ridemap.prototype = {
 	// Callback when route list is fetched
 	onRoutesFetched : function(data) {
 		// set region of map displayed
-		var r = (Ridemap.params.region) ? Ridemap.params.region.split(',')
+		var r = (this.opts.region) ? this.opts.region.split(',')
 				: [ data.bounds.s, data.bounds.w, data.bounds.n, data.bounds.e ];
 		this.map.fitBounds(new google.maps.LatLngBounds(
 			new google.maps.LatLng(parseFloat(r[0]), parseFloat(r[1])),
@@ -51,7 +44,7 @@ Ridemap.prototype = {
 
 		data.routes.forEach(function(route) {
 			this.routes[route.ID] = route;
-			route.status = 0;
+			route.status = Ridemap.Status.NOT_LOADED;
 			route.infoWindow = new google.maps.InfoWindow({
 				content: "<p>loading...</p>",
 			});
@@ -66,9 +59,9 @@ Ridemap.prototype = {
 		
 		// If label(s) or a specific route ID was specified, fetch those full
 		// routes, and the zoom the region and show the route lines
-		if (Ridemap.params.label || Ridemap.params.q) {
+		if (this.opts.label || this.opts.q) {
 			var routeFetchURI = 'getroutes.php?mode=full&'
-								 + (Ridemap.params.label ? ('label=' + Ridemap.params.label) : ('q=' + Ridemap.params.q));
+								 + (this.opts.label ? ('label=' + this.opts.label) : ('q=' + this.opts.q));
 			$.ajax({
 				url: routeFetchURI,
 				context: this,
@@ -78,9 +71,7 @@ Ridemap.prototype = {
 		}
 	},
 
-	// Set up a click listener for a marker,
-	// and associate it with a Ridemap.routes[] using
-	// a closure
+	// Set up a click event listener for a marker
 	setClickListener : function(marker, routeID) {
 		var route = this.routes[routeID];
 		var map = this;
@@ -99,8 +90,8 @@ Ridemap.prototype = {
 				}
 				map.activeRoute = routeID;
 				
-				if (route.status == 0) {
-					route.status == 1;
+				if (route.status == Ridemap.Status.NOT_LOADED) {
+					route.status == Ridemap.Status.LOADING;
 					$.ajax({
 						url: 'getroutes.php?q=' + routeID,
 						dataType: 'json',
@@ -110,14 +101,15 @@ Ridemap.prototype = {
 							route.line.setVisible(true);
 						}
 					});
-				} else if (route.status == 2) {
+				} else if (route.status == Ridemap.Status.LOADED) {
 					route.line.setVisible(true);
 				}
 			}
 		});
 	},
 
-	
+	// A route set was requested to preload, show lines, and set map
+	// bounds.   So act on the data!
 	onZoomRoutesFetched : function(data) {
 		data.routes.forEach(function(routeData) {
 			var route = this.routes[routeData.ID];
@@ -133,23 +125,24 @@ Ridemap.prototype = {
 	// From data fetched from getroutes.php, fill in all the data
 	// in the route so that it is fully loaded.
 	setFullRoute : function(route, data) {
-		if (route.status == 2) return;
-		route.status = 2;
-		$.extend(route, data);
-		route.line = new google.maps.Polyline({
-			path: google.maps.geometry.encoding.decodePath(route.encoded_polyline),
-			clickable: false,
-			draggable: false,
-			strokeOpacity: 0.7,
-			strokeWeight: 5,
-			strokeColor: route.color,
-			visible: false,
-			map: this.map
-		});
-		route.infoWindow.setContent(Ridemap.makeInfoHTML(route));
+		if (route.status < Ridemap.Status.LOADED) {
+			route.status = Ridemap.Status.LOADED;
+			$.extend(route, data);
+			route.line = new google.maps.Polyline({
+				path: google.maps.geometry.encoding.decodePath(route.encoded_polyline),
+				clickable: false,
+				draggable: false,
+				strokeOpacity: 0.7,
+				strokeWeight: 5,
+				strokeColor: route.color,
+				visible: false,
+				map: this.map
+			});
+			route.infoWindow.setContent(Ridemap.makeInfoHTML(route));
+		}
 	}
 
-}
+};
 
 
 /*
@@ -157,10 +150,12 @@ Ridemap.prototype = {
  *
  */
 
-Ridemap.initialize = function() {
-	Ridemap.utils.listenMetaKeys();
-	Ridemap.params = Ridemap.utils.getUrlParameters(['q', 'label', 'tag', 'region', 'wheelzoom']);
-}
+ 
+Ridemap.Status = {
+	NOT_LOADED: 0,
+	LOADING: 1,
+	LOADED: 2
+};
 
 Ridemap.makeInfoHTML = function(route) {
     var html = 
@@ -208,3 +203,11 @@ Ridemap.utils = {
 		return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||null;
 	}
 };
+
+// For some reason Google maps does not give status of meta keys
+// on click events, so we have to track this ourselves.
+$( document ).ready(function() {
+	Ridemap.utils.listenMetaKeys();
+});
+
+
