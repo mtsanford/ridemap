@@ -4,6 +4,7 @@
 * Copyright (C) 2014 Mark T. Sanford
 * Licensed under GNU GENERAL PUBLIC LICENSE version 2
 * see http://www.gnu.org/licenses/gpl-2.0.txt for more information
+*
 */
 
 
@@ -20,7 +21,7 @@ var Ridemap = {};
 // 2 - loaded
 
 Ridemap.initialize = function(id) {
-	Ridemap.params = Ridemap.utils.getUrlParameters(['label', 'tag', 'region', 'wheelzoom']);
+	Ridemap.params = Ridemap.utils.getUrlParameters(['q', 'label', 'tag', 'region', 'wheelzoom']);
 	Ridemap.utils.listenMetaKeys();
 	Ridemap.routes = [];
 	Ridemap.activeRoute = 0;
@@ -63,6 +64,19 @@ Ridemap.onRoutesFetched = function(data) {
 		
 		Ridemap.setClickListener(route.marker, route.ID);
 	});
+	
+	// If label(s) or a specific route ID was specified, fetch those full
+	// routes, and the zoom the region and show the route lines
+	if (Ridemap.params.label || Ridemap.params.q) {
+		var routeFetchURI = 'getroutes.php?mode=full&'
+		                     + (Ridemap.params.label ? ('label=' + Ridemap.params.label) : ('q=' + Ridemap.params.q));
+	    console.log('zoom: ' + routeFetchURI);
+		$.ajax({
+			url: routeFetchURI,
+			dataType: 'json',
+			success: Ridemap.onZoomRoutesFetched
+		});
+	}
 };
 
 // Set up a click listener for a marker,
@@ -102,19 +116,8 @@ Ridemap.fullyLoadRoute = function(routeID, callback) {
 			url: 'getroutes.php?q=' + routeID,
 			dataType: 'json',
 			success: function(data) {
-				$.extend(route, data['routes'][0]);
-				route.status = 2;
-				route.line = new google.maps.Polyline({
-					path: google.maps.geometry.encoding.decodePath(route.encoded_polyline),
-					clickable: false,
-					draggable: false,
-					strokeOpacity: 0.7,
-					strokeWeight: 5,
-					strokeColor: route.color,
-					visible: false,
-					map: Ridemap.map
-				});
-				route.infoWindow.setContent(Ridemap.makeInfoHTML(route));
+				Ridemap.setFullRoute(route, data['routes'][0]);
+				//$.extend(route, data['routes'][0]);
 				callback();
 			}
 		});
@@ -127,6 +130,39 @@ Ridemap.fullyLoadRoute = function(routeID, callback) {
 		// status >= 2, already loaded
 		callback();
 	}
+};
+
+// From data fetched from getroutes.php, fill in all the data
+// in the route so that it is fully loaded.
+Ridemap.setFullRoute = function(route, data) {
+	if (route.status == 2) return;
+	$.extend(route, data);
+	route.status = 2;
+	route.line = new google.maps.Polyline({
+		path: google.maps.geometry.encoding.decodePath(route.encoded_polyline),
+		clickable: false,
+		draggable: false,
+		strokeOpacity: 0.7,
+		strokeWeight: 5,
+		strokeColor: route.color,
+		visible: false,
+		map: Ridemap.map
+	});
+	route.infoWindow.setContent(Ridemap.makeInfoHTML(route));
+};
+
+
+Ridemap.onZoomRoutesFetched = function(data) {
+	console.log(data);
+	data.routes.forEach(function(routeData) {
+		var route = Ridemap.routes[routeData.ID];
+		Ridemap.setFullRoute(route, routeData);
+		route.line.setVisible(true);
+	});
+	Ridemap.map.fitBounds(new google.maps.LatLngBounds(
+		new google.maps.LatLng(data.bounds.s, data.bounds.w),
+		new google.maps.LatLng(data.bounds.n, data.bounds.e)
+	));
 };
 
 
