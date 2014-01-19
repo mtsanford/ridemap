@@ -143,6 +143,7 @@ else {
 			
 			if ($mode >= MODE_FULL) {
 				$route['description'] = $record->description;
+				$route['picture_url'] = $record->picture_url;
 				$route['picture_width'] = $record->picture_width;
 				$route['picture_height'] = $record->picture_height;
 				$route['link_url'] = $record->link_url;
