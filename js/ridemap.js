@@ -1,11 +1,3 @@
-/**
-* Ridemap
-*
-* Copyright (C) 2014 Mark T. Sanford
-* Licensed under GNU GENERAL PUBLIC LICENSE version 2
-* see http://www.gnu.org/licenses/gpl-2.0.txt for more information
-*
-*/
 
 // Create a ridemap on the elemenent with specified ID.   Options
 // can be specified using opts, or if missing URL query parameters
