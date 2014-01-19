@@ -70,7 +70,6 @@ Ridemap.onRoutesFetched = function(data) {
 	if (Ridemap.params.label || Ridemap.params.q) {
 		var routeFetchURI = 'getroutes.php?mode=full&'
 		                     + (Ridemap.params.label ? ('label=' + Ridemap.params.label) : ('q=' + Ridemap.params.q));
-	    console.log('zoom: ' + routeFetchURI);
 		$.ajax({
 			url: routeFetchURI,
 			dataType: 'json',
@@ -117,7 +116,6 @@ Ridemap.fullyLoadRoute = function(routeID, callback) {
 			dataType: 'json',
 			success: function(data) {
 				Ridemap.setFullRoute(route, data['routes'][0]);
-				//$.extend(route, data['routes'][0]);
 				callback();
 			}
 		});
@@ -153,7 +151,6 @@ Ridemap.setFullRoute = function(route, data) {
 
 
 Ridemap.onZoomRoutesFetched = function(data) {
-	console.log(data);
 	data.routes.forEach(function(routeData) {
 		var route = Ridemap.routes[routeData.ID];
 		Ridemap.setFullRoute(route, routeData);
