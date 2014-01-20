@@ -4,22 +4,22 @@
 // will be used.
 var Ridemap = function(id, opts) {
 	this.opts = opts || Ridemap.utils.getUrlParameters(['q', 'label', 'tag', 'region', 'wheelzoom']);
+	this.admin = this.opts.mode && (this.opts.mode == 'admin');
 	this.routes = [];
 	this.activeRoute = 0;
 	this.element = document.getElementById(id);
 	this.map = new google.maps.Map(this.element, { mapTypeId: google.maps.MapTypeId.ROADMAP });
 	
 	// The route set to include in the map can be restricted by tag OR by region
-	var routeFetchURI = 'getroutes.php'
-	        + (this.opts.tag ? ('?tag=' + this.opts.tag) :
-		      (this.opts.region ? ('?region=' + this.opts.region) : ''));
+	var fetchParams = {};
+	if (this.opts.tag) {
+		fetchParams.tag = this.opts.tag;
+	} else if (this.opts.region) {
+		fetchParams.region = this.opts.region;
+	}
 
-	$.ajax({
-		url: routeFetchURI,
-		context: this,
-		dataType: 'json',
-		success: this.onRoutesFetched
-	});
+	this.fetchRoutes(fetchParams, this.onRoutesFetched);
+
 };
 
 Ridemap.prototype = {
@@ -52,14 +52,13 @@ Ridemap.prototype = {
 		// If label(s) or a specific route ID was specified, fetch those full
 		// routes, and the zoom the region and show the route lines
 		if (this.opts.label || this.opts.q) {
-			var routeFetchURI = 'getroutes.php?mode=full&'
-								 + (this.opts.label ? ('label=' + this.opts.label) : ('q=' + this.opts.q));
-			$.ajax({
-				url: routeFetchURI,
-				context: this,
-				dataType: 'json',
-				success: this.onZoomRoutesFetched
-			});
+			var params = { mode: 'full' };
+			if (this.opts.label) {
+				params.label = this.opts.label;
+			} else {
+				params.q = this.opts.q;
+			}
+			this.fetchRoutes(params, this.onZoomRoutesFetched);
 		}
 	},
 
@@ -84,14 +83,9 @@ Ridemap.prototype = {
 				
 				if (route.status == Ridemap.Status.NOT_LOADED) {
 					route.status == Ridemap.Status.LOADING;
-					$.ajax({
-						url: 'getroutes.php?q=' + routeID,
-						dataType: 'json',
-						context: map,
-						success: function(data) {
-							this.setFullRoute(route, data['routes'][0]);
-							route.line.setVisible(true);
-						}
+					map.fetchRoutes({q: routeID}, function(data) {
+						map.setFullRoute(route, data['routes'][0]);
+						route.line.setVisible(true);
 					});
 				} else if (route.status == Ridemap.Status.LOADED) {
 					route.line.setVisible(true);
@@ -130,8 +124,62 @@ Ridemap.prototype = {
 				visible: false,
 				map: this.map
 			});
-			route.infoWindow.setContent(Ridemap.makeInfoHTML(route));
+			route.infoWindow.setContent(this.makeInfoHTML(route));
+			if (this.admin) {
+				google.maps.event.addDomListener(document.getElementById("rm_edit-" + route.ID), 'click', this.onEditClick);
+				google.maps.event.addDomListener(document.getElementById("rm_delete-" + route.ID), 'click', this.onDeleteClick);
+			}
 		}
+	},
+	
+	onEditClick: function() {
+	},
+	
+	onDeleteClick: function() {	
+		if (!confirm("Delete route?")) return;
+	},
+
+	makeInfoHTML : function(route) {
+		var html = 
+			'<div class="rm_infodiv"><div class="rm_caption">CAPTION</div><div class="rm_picture">'
+			+ '<a href="LINK_URL" target="_blank"><img class="rm_img" src="PICTURE_URL" width="PICTURE_WIDTH" '
+			+ 'height="PICTURE_HEIGHT" /></a></div><div class="rm_description">DESCRIPTION</div>'
+	
+		if (this.opts.mode == 'admin') {
+			html = html + '<div id="adminpanel"><div id="rm_label">Label: LABEL</div>'
+			            + '<div id="rm_tags">Tags: TAGS</div>'
+			            + '<span id="rm_edit-ID">edit</span><span> - </span>'
+						+ '<span id="rm_delete-ID">delete</span></div></div>';
+		} else {
+			html = html + '<img id="rm_mag" src="img/mg.png" width="20" height="20" /></div>';
+		}
+			
+		html = html.replace(/ID/g, route['ID']);
+		html = html.replace(/CAPTION/g, route['caption']);
+		html = html.replace(/LINK_URL/g, route['link_url']);
+		html = html.replace(/PICTURE_URL/g, route['picture_url']);
+		html = html.replace(/PICTURE_WIDTH/g, route['picture_width']);
+		html = html.replace(/PICTURE_HEIGHT/g, route['picture_height']);
+		html = html.replace(/DESCRIPTION/g, route['description']);
+		html = html.replace(/LABEL/g, route['label']);
+		html = html.replace(/TAGS/g, route['tags']);
+
+		return html;
+	},
+	
+	fetchRoutes: function(params, success) {
+		// if in admin node, ?mode=full becomes ?mode=admin
+		if (this.admin && params.mode == 'full') {
+			params.mode = 'admin';
+		}
+		var url = ((this.admin ? '../' : '') + 'getroutes.php')
+		       + ((Object.keys(params).length > 0) ? ('?' + $.param(params)) : '');
+		$.ajax({
+			url: url,
+			context: this,
+			dataType: 'json',
+			success: success
+		});
 	}
 
 };
@@ -147,24 +195,6 @@ Ridemap.Status = {
 	NOT_LOADED: 0,
 	LOADING: 1,
 	LOADED: 2
-};
-
-Ridemap.makeInfoHTML = function(route) {
-    var html = 
-        '<div class="rm_infodiv"><div class="rm_caption">CAPTION</div><div class="rm_picture">'
-        + '<a href="LINK_URL" target="_blank"><img class="rm_img" src="PICTURE_URL" width="PICTURE_WIDTH" '
-        + 'height="PICTURE_HEIGHT" /></a><div class="rm_description">DESCRIPTION</div>'
-        + '<img id="rm_mag" src="img/mg.png" width="20" height="20" /></div>';
-    
-    
-    html = html.replace(/CAPTION/g, route['caption']);
-    html = html.replace(/LINK_URL/g, route['link_url']);
-    html = html.replace(/PICTURE_URL/g, route['picture_url']);
-    html = html.replace(/PICTURE_WIDTH/g, route['picture_width']);
-    html = html.replace(/PICTURE_HEIGHT/g, route['picture_height']);
-    html = html.replace(/DESCRIPTION/g, route['description']);
-
-    return html;
 };
 
 
@@ -194,6 +224,7 @@ Ridemap.utils = {
 	getURLParameter: function(name) {
 		return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||null;
 	}
+	
 };
 
 // For some reason Google maps does not give status of meta keys

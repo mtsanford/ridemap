@@ -12,7 +12,7 @@
 	// user admin permission
 	// permission.php is allowed to muck with the cwd,
 	// so save it and restore it
-	$permissions_file = RMDIR . 'admin/permission.php';
+	$permissions_file = dirname(__FILE__) . '/permission.php';
 	if (file_exists($permissions_file)) {
 		$RM_have_permission = true;
 		$cwd = getcwd();
