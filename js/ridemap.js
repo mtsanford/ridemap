@@ -52,7 +52,7 @@ Ridemap.prototype = {
 		// If label(s) or a specific route ID was specified, fetch those full
 		// routes, and the zoom the region and show the route lines
 		if (this.opts.label || this.opts.q) {
-			var params = { mode: 'full' };
+			var params = { fields: 'full' };
 			if (this.opts.label) {
 				params.label = this.opts.label;
 			} else {
@@ -83,7 +83,7 @@ Ridemap.prototype = {
 				
 				if (route.status == Ridemap.Status.NOT_LOADED) {
 					route.status == Ridemap.Status.LOADING;
-					map.fetchRoutes({q: routeID}, function(data) {
+					map.fetchRoutes({q: routeID, fields: 'full'}, function(data) {
 						map.setFullRoute(route, data['routes'][0]);
 						route.line.setVisible(true);
 					});
@@ -171,8 +171,8 @@ Ridemap.prototype = {
 	
 	fetchRoutes: function(params, success) {
 		// if in admin node, ?mode=full becomes ?mode=admin
-		if (this.admin && params.mode == 'full') {
-			params.mode = 'admin';
+		if (this.admin && params.fields == 'full') {
+			params.fields = 'complete';
 		}
 		var url = ((this.admin ? '../' : '') + 'getroutes.php')
 		       + ((Object.keys(params).length > 0) ? ('?' + $.param(params)) : '');

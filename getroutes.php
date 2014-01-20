@@ -6,18 +6,16 @@
  * Usage getroutes.php[?options]
  *
  * Options:
- *     (none)                  fetch basic marker info for all routes
- *     q=id1[,id2]...          fetch full route info for routes with specified ID's
- *     region=s,w,n,e          fetch basic marker info for routes overlapping specified
- *                             geographic region.
- *     tag=tag1[,tag2]..       fetch basic marker info for routes tagged with all specified tags
- *     label=label1[,label2].. fetch full route info for routes with specified labels
- *     mode=edit               fetch ALL information about routes specified with 'q' or 'label' 
- *     mode=admin              fetch ALL information about routes specified with 'q' or 'label' (w/ websnapr conversion)
  *
- *     Basic marker info is ID, caption, marker_pos, label
- *     Full route info also includes everything, including tags, but raw point info and way points.
- *	   All route info is 'full' but with raw and way points included.
+ *     (none)                  fetch info for all routes
+ *     q=id1[,id2]...          fetch info for routes with specified ID's
+ *     region=s,w,n,e          fetch info for routes who's bounds overlap specified geographic region.
+ *     tag=tag1[,tag2]..       fetch info for routes tagged with all specified tags (e.g. tag1 and tag2)
+ *     label=label1[,label2].. fetch info for routes with specified labels
+ *
+ *     fields=basic            (default) fetch just ID, caption, marker_pos, label for routes
+ *     fields=full             fetch basic + tags, plus everything else, except way point and raw point info 
+ *     fields=complete         fetch ALL information about routes specified
  *
  * Output:
  *     JSON describing the return value.  Empty string on failure, or no data.  E.g.:
@@ -38,9 +36,9 @@ require_once 'config.php';
 require_once (dirname(__FILE__) . '/includes/db.php');
 require_once (dirname(__FILE__) . '/includes/websnapr.php');
 
-const MODE_BASIC = 0;  
-const MODE_FULL = 1;  
-const MODE_COMPLETE = 2;  
+const FIELDS_BASIC = 0;  
+const FIELDS_FULL = 1;  
+const FIELDS_COMPLETE = 2;  
 
 // TODO validate query string
 $qs = DB_EscapeString($_SERVER["QUERY_STRING"]);
@@ -63,7 +61,7 @@ if ($result->num_rows > 0) {
 // bounds of the set.
 else {
 	
-	$mode = MODE_BASIC;
+	$fields = FIELDS_BASIC;
 	
 	// Query on region
 	if (!empty($_GET['region'])) {
@@ -89,7 +87,6 @@ else {
 	
 	// Query on label(s)
 	else if (!empty($_GET['label'])) {
-		$mode = MODE_FULL;
 		$labels = explode(',', strtolower($_GET['label']));
 		$query = "SELECT *
 				  FROM routes
@@ -98,7 +95,6 @@ else {
 	
 	// query on ID(s)
 	else if (!empty($_GET['q'])) {
-		$mode = MODE_FULL;
 		$query = "SELECT * FROM routes where ID IN (" . $_GET['q'] . ")";
 	}
 	
@@ -108,12 +104,11 @@ else {
 	}
 	
 	// Override default fetch mode
-	if (!empty($_GET['mode'])) {
-		switch ($_GET['mode']) {
-			case 'basic': $mode = MODE_BASIC; break;
-			case 'full': $mode = MODE_FULL; break;
-			case 'edit': $mode = MODE_COMPLETE; break;
-			case 'admin': $mode = MODE_COMPLETE; break;
+	if (!empty($_GET['fields'])) {
+		switch ($_GET['fields']) {
+			case 'basic': $fields = FIELDS_BASIC; break;
+			case 'full': $fields = FIELDS_FULL; break;
+			case 'complete': $fields = FIELDS_COMPLETE; break;
 		}
 	}
 
@@ -134,7 +129,7 @@ else {
 			$route['marker_pos'] = $record->marker_pos;
 			$route['label'] = $record->label;
 			
-			if ($mode >= MODE_FULL) {
+			if ($fields >= FIELDS_FULL) {
 				$route['description'] = $record->description;
 				$route['picture_url'] = $record->picture_url;
 				$route['picture_width'] = $record->picture_width;
@@ -158,7 +153,7 @@ else {
 				$route['tags'] = implode( ' ', $tags );
 			}
 			
-			if ($mode >= MODE_COMPLETE) {
+			if ($fields >= FIELDS_COMPLETE) {
 				$route['way_points'] = $record->way_points;
 				$route['raw_points'] = $record->raw_points;
 			}
