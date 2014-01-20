@@ -1,0 +1,95 @@
+
+#rm_buttonblock {
+margin: 8px;
+}
+
+#rm_admin_buttonblock {
+margin:5px;
+}
+
+#rm_admin_inputblock {
+margin-top:5px;
+margin-right:5px;
+border:solid black 1px;
+padding:5px;
+}
+
+.rm_admim_input
+{
+margin-top:5px;
+margin-bottom:5px;
+}
+
+#rm_label {
+padding:0px;
+margin:4px;
+font-size:small;
+}
+
+#rm_tags {
+padding:0px;
+margin:4px;
+font-size:x-small;
+}
+
+#rm_edit {
+color: blue;
+padding:5px;
+}
+
+#rm_edit:hover {
+color: red;
+padding:5px;
+}
+
+#rm_delete{
+color: blue;
+padding:5px;
+}
+
+#rm_delete:hover {
+color: red;
+padding:5px;
+}
+
+#instructions {
+padding:5px;
+font-size:small;
+}
+
+.rm_small {
+font-size:x-small;
+margin-bottom:6px;
+}
+
+#leftnav
+{
+height:100%;
+min-height:100%;
+float: left;
+width: 300px;
+margin: 0;
+padding: 6px;
+}
+
+#navtable {
+min-height:700px;
+height:95%;
+width:98%;
+}
+
+#map_canvas
+{
+height:100%;
+border-left: 1px solid gray;
+}
+
+#leftnav
+{
+height:100%;
+padding: 6px;
+}
+
+body, html {
+	height:100%;
+}

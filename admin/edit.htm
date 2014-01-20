@@ -1,0 +1,138 @@
+<?php
+
+$result = DB_Query("SELECT MAX(ID) AS max_route_id FROM routes");
+
+if ($result->num_rows > 0) {
+	extract($result->fetch_assoc());
+	$label = 'route' . ($max_route_id + 1);
+} else {
+	$label = '';
+}
+
+
+if ($id == 'new') {
+	$routeID = "";
+} else if (is_numeric($id)) {
+	$routeID = $id;
+}
+
+
+if (isset($WEBSNAPR_API_KEY)) {
+	$picurl =  "$WEBSNAPR_string";
+	$wsinfo = "or websnapr to auto-generate thumbnail";
+} else {
+	$picurl =  "$scriptbase/img/www.mikworks.com.jpg";
+	$wsinfo = "";
+}
+
+if (isset($_GET['lat']) && isset($_GET['lng'])) {
+	$lat = $_GET['lat'];
+	$lng = $_GET['lng'];
+} else {
+	$lat = 38;
+	$lng = -122;
+}
+
+$zoom = (isset($_GET['zoom'])) ? $_GET['zoom'] : 5;
+
+$html = <<<EOD
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+    <title>Ridemap - Add/Edit a Route</title>
+	<script src="//maps.googleapis.com/maps/api/js?libraries=geometry&sensor=false" type="text/javascript"></script>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <link href="../css/ridemapadmin.css" rel="stylesheet" type="text/css"/>
+    <link href="grayout.css" rel="stylesheet" type="text/css"/>
+    <script src="grayout.js" type="text/javascript"></script>
+    <script src="edit.js" type="text/javascript"></script>
+  </head>
+
+  <body onload="on_load();">
+
+  <table id="navtable"><tr>
+  <td style="width:300px; height:100%">
+
+	<div id="leftnav">
+
+	    <form name="routeform" action="editroute.php" method="post" >
+		<div>
+
+			<div id="rm_admin_inputblock">
+				<div class="rm_admim_input">
+					<div>Caption: </div>
+					<input type="text" name="caption" size="42" maxlength="255" value="" id="caption"></input>
+					<div class="rm_small">Text to display in tooltip for route's marker, and at top of info popup balloon</div>
+				</div>
+				<div class="rm_admim_input">
+					<div>Label:</div>
+					<input type="text" name="label" size="42" maxlength="63" value="{$label}" id="label"></input>
+					<div class="rm_small">Internal label for this route - no spaces</div>
+				</div>
+				<div class="rm_admim_input">
+					<div>Tags:</div>
+					<input type="text" name="tags" size="42" maxlength="255" value="" id="tags"></input>
+					<div class="rm_small">(optional, space separated) tags describing the route</div>
+				</div>
+				<div class="rm_admim_input">
+					<div>Description:</div>
+					<textarea rows="3" cols="32" name="description" id="description"></textarea>
+					<div class="rm_small">(optional) more detailed description that appears below the picture</div>
+				</div>
+				<div class="rm_admim_input">
+					<div>Picture URL: </div>
+					<input type="text" name="picture_url" size="42" maxlength="255" value="{$picurl}"  id="picture_url"></input>
+					<div class="rm_small">Picture to display in the info popup balloon for the route {$wsinfo}</div>
+				</div>
+				<div class="rm_admim_input">
+					<div>Link URL: </div>
+					<input type="text" name="link_url" size="42" maxlength="255" value=""  id="link_url"></input>
+					<div class="rm_small">Link to page when user clicks on picture</div>
+				</div>
+				<div class="rm_admim_input">
+					<div>Color: </div>
+					<input type="text" name="color" id="color" size="8" maxlength="32" value=""  id="color"></input>
+					<div class="rm_small">this is the RGB color of the path in html format #RRGGBB</div>
+				</div>
+			</div>
+
+			<div id="rm_admin_buttonblock">
+				<input type="button" id="submitbtn" value="submit" />
+				<input type="button" id="cancel" name="cancel" value="cancel" />
+                <span style="margin:20px" />
+				<input type="button" id="help" name="help" value="help" />
+			</div>
+			<div id="rm_noroute" style="font-size:x-small; color:#FF0000">You must select a route on the map before submitting</div>
+			
+		</div>
+
+		<!-- HIDDEN TABLE DATA -->
+		<div style="visibility:hidden; display:none">
+		<input type="text" name="edit_id" id="edit_id" size="64" maxlength="16000" value="{$routeID}" />
+		<input type="text" name="way_points" id="way_points" size="64" maxlength="255" value="" />
+		<input type="text" name="raw_points" id="raw_points" size="64" maxlength="16000" value="" />
+		<input type="text" name="encoded_polyline" id="encoded_polyline" maxlength="16000" value="" />
+		<input type="text" name="encoded_levels" id="encoded_levels" size="64" maxlength="8000" value="" />
+		<input type="text" name="zoomfactor" id="zoomfactor" size="2" maxlength="3" value=""></input>
+		<input type="text" name="numlevels" id="numlevels" size="2" maxlength="3" value=""></input>
+		<input type="text" name="marker_pos" id="marker_pos" size="64" maxlength="64" value=""></input>
+		</div>
+
+	    </form>
+	</div>
+  </td>
+  <td style="height:100%">
+	<div id="map_canvas"></div>
+  </td>
+  </tr></table>
+    
+  <div style="visibility:hidden; display:none">
+    <div id='pass_lat'>{$lat}</div>
+    <div id='pass_lng'>{$lng}</div>
+    <div id='pass_zoom'>{$zoom}</div>
+  </div>
+
+  </body>
+</html>
+EOD;

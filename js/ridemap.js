@@ -126,19 +126,21 @@ Ridemap.prototype = {
 			});
 			route.infoWindow.setContent(this.makeInfoHTML(route));
 			if (this.admin) {
-				google.maps.event.addDomListener(document.getElementById("rm_edit-" + route.ID), 'click', this.onEditClick);
-				google.maps.event.addDomListener(document.getElementById("rm_delete-" + route.ID), 'click', this.onDeleteClick);
+				var map = this;
+				google.maps.event.addDomListener(document.getElementById("rm_edit-" + route.ID), 'click', function() {
+					window.location = "?id=" + map.routes[map.activeRoute].ID;
+				});
+				google.maps.event.addDomListener(document.getElementById("rm_delete-" + route.ID), 'click', function() {	
+					if (map.activeRoute < 0) return;
+					//this.map.closeInfoWindow();
+					if (!confirm("Delete route?")) return;
+					//ajaxSend("delete.php?id=" + this.routes[this.activeRoute].ID, this, function();
+					//!what happenens if user click marker while we're waiting?
+				});
 			}
 		}
 	},
 	
-	onEditClick: function() {
-	},
-	
-	onDeleteClick: function() {	
-		if (!confirm("Delete route?")) return;
-	},
-
 	makeInfoHTML : function(route) {
 		var html = 
 			'<div class="rm_infodiv"><div class="rm_caption">CAPTION</div><div class="rm_picture">'
