@@ -1,11 +1,8 @@
 <?php
 
-require_once '../global.php';
 require_once '../config.php';
-require_once (RMINCLUDEDIR . 'db.php');
-require_once (RMINCLUDEDIR . 'websnapr.php');
-
-DB_Connect() or die( "can't connect to database");
+require_once (dirname(__FILE__) . '/../includes/db.php');
+require_once (dirname(__FILE__) . '/../includes/websnapr.php');
 
 $ch = curl_init();
 
@@ -38,9 +35,9 @@ foreach ($routes as $route) {
 	//if ($id != "154") continue;
 	
 	$ch = curl_init();
-	curl_setopt($ch, CURLOPT_URL, "http://www.pashnit.com/ridemap/getroutes.php?q=" . $id);
+	curl_setopt($ch, CURLOPT_URL, "http://www.pashnit.com/ridemap/getroutes.php?mode=edit&q=" . $id);
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-	curl_setopt($ch, CURLOPT_TIMEOUT, 4);
+	curl_setopt($ch, CURLOPT_TIMEOUT, 10);
 	// curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 	// curl_setopt($ch, CURLOPT_POSTFIELDS, $content);
 
@@ -65,19 +62,19 @@ foreach ($routes as $route) {
 	
 	$query = "INSERT INTO routes
 		(ID, label, caption, description, picture_url, picture_width, picture_height, 
-		 link_url, encoded_polyline, 
+		 link_url, encoded_polyline, way_points, raw_points,
 		 encoded_levels, zoomfactor, numlevels, marker_pos, color, 
 		 bound_west, bound_east, bound_north, bound_south )
 		 VALUES
 		 ( {$full_route->ID}, '{$full_route->label}', '{$full_route->caption}',  '{$full_route->description}',  
 		   '{$full_route->picture_url}',  '{$full_route->picture_width}',  '{$full_route->picture_height}', '{$full_route->link_url}',
-		   '{$full_route->encoded_polyline}', 
+		   '{$full_route->encoded_polyline}', '{$full_route->way_points}', '{$full_route->raw_points}',
 		   '{$full_route->encoded_levels}', '{$full_route->zoomfactor}',  '{$full_route->numlevels}', '{$full_route->marker_pos}', '{$full_route->color}',
 		   '{$full_route->bound_west}', '{$full_route->bound_east}', '{$full_route->bound_north}', '{$full_route->bound_south}'
 		 )
 	;";
 		
-		$result=mysql_query($query);
+		$result = DB_Query($query);
 
 		//echo $query;
 	

@@ -1,23 +1,39 @@
+body, html {
+	margin: 0px;
+	padding: 0px;
+	height: 100%
+}
+
+div#edit-form {
+	float: left;
+	width: 320px;
+	height: 100%;
+	background-color: #CCD;
+}
+
+#map-canvas {
+	margin:0px;
+	height:100%;
+	border-left: 1px solid gray;
+}
+
 
 #rm_buttonblock {
-margin: 8px;
+	margin: 8px;
 }
 
 #rm_admin_buttonblock {
-margin:5px;
+	margin-top:1.5em;
+	font-size: 1.5em;
 }
 
 #rm_admin_inputblock {
-margin-top:5px;
-margin-right:5px;
-border:solid black 1px;
-padding:5px;
+	padding:1em;
 }
 
 .rm_admim_input
 {
-margin-top:5px;
-margin-bottom:5px;
+	margin:5px 0;
 }
 
 #rm_label {
@@ -78,11 +94,6 @@ height:95%;
 width:98%;
 }
 
-#map-canvas {
-	margin:0px;
-	height:100%;
-	border-left: 1px solid gray;
-}
 
 #leftnav
 {
@@ -90,6 +101,3 @@ height:100%;
 padding: 6px;
 }
 
-body, html {
-	height:100%;
-}
