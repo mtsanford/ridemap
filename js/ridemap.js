@@ -170,10 +170,6 @@ Ridemap.prototype = {
 	},
 	
 	fetchRoutes: function(params, success) {
-		// if in admin node, ?mode=full becomes ?mode=admin
-		if (this.admin && params.fields == 'full') {
-			params.fields = 'complete';
-		}
 		var url = ((this.admin ? '../' : '') + 'getroutes.php')
 		       + ((Object.keys(params).length > 0) ? ('?' + $.param(params)) : '');
 		$.ajax({

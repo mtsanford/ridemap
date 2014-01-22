@@ -16,6 +16,7 @@ RouteEdit = {
         });
 		
 		$('#map-undo').click(function(event) {
+			RouteEdit.removeLastWayPoint();
 		});
 
 		$('#map-clear').click(function(event) {
@@ -36,7 +37,7 @@ RouteEdit = {
 			}
 		} else {
 			$.ajax({
-				url: "../getroutes.php?fields=complete&q=" + RouteEdit.id,
+				url: "../getroutes.php?fields=full&q=" + RouteEdit.id,
 				dataType: 'json',
 				success: function(data) {
 					RouteEdit.loadRoute(data.routes[0]);
@@ -91,7 +92,6 @@ RouteEdit = {
 			marker.setMap(null);
 		});
 		RouteEdit.markers = [];
-		RouteEdit.route.raw_points = google.maps.geometry.encoding.decodePath(RouteEdit.route.encoded_polyline);
 		RouteEdit.route.way_points.forEach(RouteEdit.addMarker);
 		RouteEdit.refreshLine();
 	},
@@ -110,25 +110,31 @@ RouteEdit = {
 		if (RouteEdit.line) {
 			RouteEdit.line.setMap(null);
 		}
-		RouteEdit.line = new google.maps.Polyline({
-			path: RouteEdit.route.raw_points,
-			clickable: false,
-			draggable: false,
-			strokeOpacity: 0.7,
-			strokeWeight: 5,
-			strokeColor: "#000",
-			visible: true,
-			map: RouteEdit.map
-		});
+		if (RouteEdit.route.way_points.length > 0) {
+			RouteEdit.line = new google.maps.Polyline({
+				path: RouteEdit.route.raw_points,
+				clickable: false,
+				draggable: false,
+				strokeOpacity: 0.7,
+				strokeWeight: 5,
+				strokeColor: "#000",
+				visible: true,
+				map: RouteEdit.map
+			});
+			RouteEdit.route.encoded_polyline = google.maps.geometry.encoding.encodePath(RouteEdit.route.raw_points);
+		}
 	},
 	
 	addWayPoint: function(newWayPoint) {
 	
 		console.log(newWayPoint);
 		
+		$('#edit-undo').show();
+		
 		if (RouteEdit.route.way_points.length == 0) {
 			RouteEdit.route.way_points.push(newWayPoint);
 			RouteEdit.addMarker(newWayPoint);
+			RouteEdit.wayIndexToRawIndex[0] = 0;
 			return;
 		}
 	
@@ -145,6 +151,8 @@ RouteEdit = {
 				return;
 			}
 				
+			RouteEdit.addMarker(newWayPoint);
+
 			RouteEdit.route.way_points.push(newWayPoint);
 			
 			// The first point of each path in a step is typically the same
@@ -164,22 +172,37 @@ RouteEdit = {
 					});
 				});
 			});
-
-			RouteEdit.route.encoded_polyline = google.maps.geometry.encoding.encodePath(RouteEdit.route.raw_points);
+			
+			RouteEdit.wayIndexToRawIndex.push(RouteEdit.route.raw_points.length);
 			
 			RouteEdit.refreshLine();
-			
-			RouteEdit.addMarker(newWayPoint);
 
 			//console.log(JSON.stringify(pathPoints));
 		});
 
 	},
 	
+	removeLastWayPoint: function() {
+		if (RouteEdit.route.way_points.length > 0) {
+			RouteEdit.route.way_points.pop();
+			RouteEdit.wayIndexToRawIndex.pop();
+			RouteEdit.markers.pop().setMap(null);
+			RouteEdit.route.raw_points = RouteEdit.route.raw_points.splice(0, RouteEdit.wayIndexToRawIndex[RouteEdit.wayIndexToRawIndex.length-1]);
+			RouteEdit.refreshLine();
+			if (RouteEdit.route.way_points.length == 0) {
+				$('#edit-undo').hide();
+				$('#edit-clear').hide();
+			}
+		}
+	},
+	
 	directionsService: new google.maps.DirectionsService(),
 	route: null,
 	line: null,
 	markers: [],
+	
+	// For each waypoint, the index into raw_points it corresponds to. e.g. [0,23,79]
+	wayIndexToRawIndex: [],
 	
 	/*
 	 * Utility functions 

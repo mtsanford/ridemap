@@ -14,8 +14,7 @@
  *     label=label1[,label2].. fetch info for routes with specified labels
  *
  *     fields=basic            (default) fetch just ID, caption, marker_pos, label for routes
- *     fields=full             fetch basic + tags, plus everything else, except way point and raw point info 
- *     fields=complete         fetch ALL information about routes specified
+ *     fields=full             fetch all data, including tags
  *
  * Output:
  *     JSON describing the return value.  Empty string on failure, or no data.  E.g.:
@@ -132,8 +131,6 @@ else {
 			if ($fields >= FIELDS_FULL) {
 				$route['description'] = $record->description;
 				$route['picture_url'] = $record->picture_url;
-				$route['picture_width'] = $record->picture_width;
-				$route['picture_height'] = $record->picture_height;
 				$route['link_url'] = $record->link_url;
 				$route['date_added'] = $record->date_added;
 				$route['encoded_polyline'] = $record->encoded_polyline;
@@ -151,11 +148,6 @@ else {
 					$tags[] = $tag_row->tag;
 				}
 				$route['tags'] = implode( ', ', $tags );
-			}
-			
-			if ($fields >= FIELDS_COMPLETE) {
-				$route['way_points'] = $record->way_points;
-				$route['raw_points'] = $record->raw_points;
 			}
 			
 			$out['routes'][$i] = $route;
