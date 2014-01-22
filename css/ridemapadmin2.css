@@ -40,21 +40,15 @@ div#control-panel {
 	margin-left: 320px;
 }
 
-#map-clear, #map-undo  {
+#map-message  {
 	position: absolute;
-	top: 1em;
+	top: 1.5em;
 	z-index: 99;
-	background-color: white;
+	background-color: #FCC;
 	border: 2px solid black;
+	cursor: pointer;
 	padding: 0.5em 1em;
-}
-
-#map-clear {
-	left: 8em;
-}
-
-#map-undo {
-	left: 13em;
+	left: 6em;
 }
 
 #map-canvas {

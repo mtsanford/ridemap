@@ -4,6 +4,7 @@ RouteEdit = {
 	init: function() {
 		RouteEdit.id = RouteEdit.utils.getURLParameter('id');
 		RouteEdit.new_route = (RouteEdit.id === 'new');
+		
 		RouteEdit.map = new google.maps.Map(document.getElementById('map-canvas'), {
 		   zoom:5,
 		   mapTypeId: google.maps.MapTypeId.ROADMAP,
@@ -11,43 +12,22 @@ RouteEdit = {
 		   draggableCursor: 'crosshair'
 		});
 		
-		google.maps.event.addListener(RouteEdit.map, 'click', function(event) {
-			RouteEdit.addWayPoint(event.latLng);
-        });
+		RouteEdit.directionsService = new google.maps.DirectionsService();
 		
-		$('#map-undo').click(function(event) {
-			RouteEdit.removeLastWayPoint();
-		});
+		RouteEdit.directionsDisplay = new google.maps.DirectionsRenderer( {draggable: true} );
 
-		$('#map-clear').click(function(event) {
-		});
+		google.maps.event.addListener(RouteEdit.map, 'click', RouteEdit.mapClick);
+		
+		$('#map-message').click(RouteEdit.clear);
 		
 		if (RouteEdit.new_route) {
-			RouteEdit.route = {
-				caption: "",
-				label: "",
-				description: "",
-				tags: "",
-				color: "",
-				picture_url: "",
-				link_url: "",
-				way_points: [],
-				raw_points: [],
-				encoded_polyline: ""
-			}
+			RouteEdit.setState(RouteEdit.State.STATE_FRESH);
 		} else {
+			RouteEdit.setState(RouteEdit.State.STATE_DEAD_LINE);
 			$.ajax({
 				url: "../getroutes.php?fields=full&q=" + RouteEdit.id,
 				dataType: 'json',
-				success: function(data) {
-					RouteEdit.loadRoute(data.routes[0]);
-					RouteEdit.map.fitBounds(new google.maps.LatLngBounds(
-						new google.maps.LatLng(data.bounds.s, data.bounds.w),
-						new google.maps.LatLng(data.bounds.n, data.bounds.e)
-					));
-					RouteEdit.route.way_points.forEach(RouteEdit.addMarker);
-					RouteEdit.refreshLine();
-				}
+				success: RouteEdit.loadRoute
 			});
 		}
 		
@@ -55,155 +35,153 @@ RouteEdit = {
 	
 	// load route from getroutes response
 	loadRoute: function(data) {
-		RouteEdit.route = data;
-		console.log(data);
+		RouteEdit.route = data.routes[0];
 
-		for(var prop in RouteEdit.route) { 
+		RouteEdit.map.fitBounds(new google.maps.LatLngBounds(
+			new google.maps.LatLng(data.bounds.s, data.bounds.w),
+			new google.maps.LatLng(data.bounds.n, data.bounds.e)
+		));
+		
+		RouteEdit.line = new google.maps.Polyline({
+			path: google.maps.geometry.encoding.decodePath(RouteEdit.route.encoded_polyline),
+			clickable: false,
+			draggable: false,
+			strokeOpacity: 0.7,
+			strokeWeight: 5,
+			strokeColor: "#000",
+			visible: true,
+			map: RouteEdit.map
+		});
+
+		for(var prop in RouteEdit.route) {
 		   if (RouteEdit.route.hasOwnProperty(prop)) {
 				$('#'+prop).val(RouteEdit.route[prop]);
 		   }
 		}
-
-		// Convert coordinate strings to LatLng objects
-		// Some legacy data does not way/raw point data
-		var rawStrings = (RouteEdit.route.raw_points || '').split(';');
-		RouteEdit.route.raw_points = [];
-		rawStrings.forEach(function(string) {
-			var c = string.split(',');
-			RouteEdit.route.raw_points.push(new google.maps.LatLng(parseFloat(c[0]), parseFloat(c[1])));
-		});
-
-		// legacy routes did not save raw points, so reconstruct from encoded path
-		if (RouteEdit.route.raw_points.length == 0) {
-			RouteEdit.route.raw_points = google.maps.geometry.encoding.decodePath(RouteEdit.route.encoded_polyline);
-		}
-		
-		var wayStrings = (RouteEdit.route.way_points || '').split(';');
-		RouteEdit.route.way_points = [];
-		wayStrings.forEach(function(string) {
-			var c = string.split(',');
-			RouteEdit.route.way_points.push(new google.maps.LatLng(parseFloat(c[0]), parseFloat(c[1])));
-		});
 		
 	},
 	
-	showRoute: function () {
-		RouteEdit.markers.forEach(function(marker) {
-			marker.setMap(null);
-		});
-		RouteEdit.markers = [];
-		RouteEdit.route.way_points.forEach(RouteEdit.addMarker);
-		RouteEdit.refreshLine();
-	},
+	mapClick: function(event) {
 
-	addMarker: function(point) {
-		m = new google.maps.Marker({
-			position: point,
-			map: RouteEdit.map,
-			visible: true,
-			clickable: false
-		});
-		RouteEdit.markers.push(m);
-	},
-	
-	refreshLine: function() {
-		if (RouteEdit.line) {
-			RouteEdit.line.setMap(null);
-		}
-		if (RouteEdit.route.way_points.length > 0) {
-			RouteEdit.line = new google.maps.Polyline({
-				path: RouteEdit.route.raw_points,
-				clickable: false,
-				draggable: false,
-				strokeOpacity: 0.7,
-				strokeWeight: 5,
-				strokeColor: "#000",
+		if (RouteEdit.state == RouteEdit.State.STATE_FRESH) {
+			RouteEdit.startMarker = new google.maps.Marker({
+				position: event.latLng,
+				map: RouteEdit.map,
 				visible: true,
-				map: RouteEdit.map
+				clickable: false,
+				optimized: false
 			});
-			RouteEdit.route.encoded_polyline = google.maps.geometry.encoding.encodePath(RouteEdit.route.raw_points);
-		}
-	},
-	
-	addWayPoint: function(newWayPoint) {
-	
-		console.log(newWayPoint);
-		
-		$('#edit-undo').show();
-		
-		if (RouteEdit.route.way_points.length == 0) {
-			RouteEdit.route.way_points.push(newWayPoint);
-			RouteEdit.addMarker(newWayPoint);
-			RouteEdit.wayIndexToRawIndex[0] = 0;
+			RouteEdit.setState(RouteEdit.State.STATE_HAVE_START);
 			return;
 		}
 	
-		var request = {
-			origin: RouteEdit.route.way_points[RouteEdit.route.way_points.length - 1],
-			destination: newWayPoint,
-			travelMode: google.maps.DirectionsTravelMode.DRIVING
-		};
+		if (RouteEdit.state == RouteEdit.State.STATE_HAVE_START) {
+	
+			var request = {
+				origin: RouteEdit.startMarker.getPosition(),
+				destination: event.latLng,
+				travelMode: google.maps.DirectionsTravelMode.DRIVING
+			};
 
-		RouteEdit.directionsService.route(request, function(result, status) {
-		
-			if (status != google.maps.DirectionsStatus.OK) {
-				console.log(status);
-				return;
-			}
+			RouteEdit.directionsService.route(request, function(result, status) {
+			
+				if (status != google.maps.DirectionsStatus.OK) {
+					console.log(status);
+					return;
+				}
+					
+				RouteEdit.startMarker.setMap(null);
+				RouteEdit.startMarker = null;
 				
-			RouteEdit.addMarker(newWayPoint);
+				RouteEdit.directionsDisplay.setMap(RouteEdit.map);
+				RouteEdit.directionsDisplay.setDirections(result);
 
-			RouteEdit.route.way_points.push(newWayPoint);
-			
-			// The first point of each path in a step is typically the same
-			// as the last point in the previous path.  Check for this
-			// so we don't have multiple copies of the point on the final path.
-			var lastPoint = (RouteEdit.route.raw_points.length > 0)
-							? RouteEdit.route.raw_points[RouteEdit.route.raw_points.length-1] 
-							: new google.maps.LatLng(0,0);
-			
-			result.routes[0].legs.forEach(function(leg) {
-				leg.steps.forEach(function(step) {
-					step.path.forEach(function(point) {
-						if (!lastPoint.equals(point)) {
-							RouteEdit.route.raw_points.push(point);
-						}
-						lastPoint = point;
-					});
-				});
+				RouteEdit.setState(RouteEdit.State.STATE_HAVE_DESTINATION);
 			});
 			
-			RouteEdit.wayIndexToRawIndex.push(RouteEdit.route.raw_points.length);
-			
-			RouteEdit.refreshLine();
-
-			//console.log(JSON.stringify(pathPoints));
-		});
+			return;
+		}
 
 	},
 	
-	removeLastWayPoint: function() {
-		if (RouteEdit.route.way_points.length > 0) {
-			RouteEdit.route.way_points.pop();
-			RouteEdit.wayIndexToRawIndex.pop();
-			RouteEdit.markers.pop().setMap(null);
-			RouteEdit.route.raw_points = RouteEdit.route.raw_points.splice(0, RouteEdit.wayIndexToRawIndex[RouteEdit.wayIndexToRawIndex.length-1]);
-			RouteEdit.refreshLine();
-			if (RouteEdit.route.way_points.length == 0) {
-				$('#edit-undo').hide();
-				$('#edit-clear').hide();
+	getEncodedPolyLine: function() {
+		// The first point of each path in a step is typically the same
+		// as the last point in the previous path.  Check for this
+		// so we don't have multiple copies of the point on the final path.
+		var lastPoint = (RouteEdit.route.raw_points.length > 0)
+						? RouteEdit.route.raw_points[RouteEdit.route.raw_points.length-1] 
+						: new google.maps.LatLng(0,0);
+		
+		result.routes[0].legs.forEach(function(leg) {
+			leg.steps.forEach(function(step) {
+				step.path.forEach(function(point) {
+					if (!lastPoint.equals(point)) {
+						RouteEdit.route.raw_points.push(point);
+					}
+					lastPoint = point;
+				});
+			});
+		});
+			
+	},
+	
+	clear: function() {
+		if (      RouteEdit.state == RouteEdit.State.STATE_HAVE_DESTINATION 
+		       || RouteEdit.state == RouteEdit.State.STATE_DEAD_LINE
+		       || RouteEdit.state == RouteEdit.State.STATE_DEAD_LINE) {
+			   
+			RouteEdit.directionsDisplay.setMap(null);
+			if (RouteEdit.startMarker) {
+				RouteEdit.startMarker.setMap(null);
+				RouteEdit.startMarker = null;
 			}
+			if (RouteEdit.line) {
+				RouteEdit.line.setMap(null);
+				RouteEdit.line = null;
+			}
+			RouteEdit.setState(RouteEdit.State.STATE_FRESH);
 		}
 	},
 	
-	directionsService: new google.maps.DirectionsService(),
-	route: null,
+	setState: function(state) {
+		var messages = {};
+		messages[RouteEdit.State.STATE_UNDEFINED] = "Bad state";
+		messages[RouteEdit.State.STATE_FRESH] = "Click a starting point";
+		messages[RouteEdit.State.STATE_HAVE_START] = "Click a destination point";
+		messages[RouteEdit.State.STATE_HAVE_DESTINATION] = "Drag route to change, or click here to start over";
+		messages[RouteEdit.State.STATE_DEAD_LINE] = "Click here to start over";
+
+		RouteEdit.state = state;
+		$("#map-message").text(messages[state]);
+	},
+	
+	directionsService: null,
+	
+	directionsDisplay: null,
+	
+	route: {
+		caption: "",
+		label: "",
+		description: "",
+		tags: "",
+		color: "",
+		picture_url: "",
+		link_url: "",
+		encoded_polyline: ""
+	},
+
 	line: null,
-	markers: [],
 	
-	// For each waypoint, the index into raw_points it corresponds to. e.g. [0,23,79]
-	wayIndexToRawIndex: [],
+	startMarker: null,
 	
+	State: {
+		STATE_UNDEFINED: 0,
+		STATE_FRESH: 1,
+		STATE_HAVE_START: 2,
+		STATE_HAVE_DESTINATION: 3,
+		STATE_DEAD_LINE: 4
+	},
+		 
 	/*
 	 * Utility functions 
 	 */
