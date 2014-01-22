@@ -23,19 +23,19 @@ $html = <<<EOD
     <title>Ridemap - Admin</title>
 	<script src="//maps.googleapis.com/maps/api/js?libraries=geometry&sensor=false" type="text/javascript"></script>
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-    <script src="../js/ridemap.js" type="text/javascript"></script>
-    <link href="../css/ridemap.css" rel="stylesheet" type="text/css"/>
-    <link href="../css/ridemapadmin.css" rel="stylesheet" type="text/css"/>
+    <script src="js/ridemap.js" type="text/javascript"></script>
+    <link href="css/ridemap.css" rel="stylesheet" type="text/css"/>
+    <link href="css/ridemapadmin.css" rel="stylesheet" type="text/css"/>
     <script type="text/javascript">
 
 	var Admin = {
 		options: JSON.parse('{$options}'),
 		rideMap : null,
 		initialize : function() {
-		  Admin.rideMap = new Ridemap('map-canvas', {mode: 'admin'});
-		  if (Admin.options.routeID) {
-			Admin.rideMap.zoomToRoute(Admin.options.routeID);
-		  }
+			Admin.rideMap = new Ridemap('map-canvas', {mode: 'admin'});
+			if (Admin.options.routeID) {
+				Admin.rideMap.zoomToRoute(Admin.options.routeID);
+			}
 		},
 		newRoute : function() {
 			var bounds =  Admin.rideMap.map.getBounds();

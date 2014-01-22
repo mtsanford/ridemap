@@ -173,8 +173,8 @@ Ridemap.prototype = {
 	},
 	
 	fetchRoutes: function(params, success) {
-		var url = ((this.admin ? '../' : '') + 'getroutes.php')
-		       + ((Object.keys(params).length > 0) ? ('?' + $.param(params)) : '');
+		var url = 'getroutes.php' + ((Object.keys(params).length > 0) ? ('?' + $.param(params)) : '');
+		console.log('fetchRoutes: ' + url);
 		$.ajax({
 			url: url,
 			context: this,

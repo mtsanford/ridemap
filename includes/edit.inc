@@ -25,9 +25,9 @@ $html = <<<EOD
 		<title>Ridemap - Add/Edit a Route</title>
 		<script src="//maps.googleapis.com/maps/api/js?libraries=geometry&sensor=false" type="text/javascript"></script>
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-		<script src="jquery.blockUI.js"></script>
-		<script src="edit.js" type="text/javascript"></script>
-		<link href="../css/ridemapadmin.css" rel="stylesheet" type="text/css"/>
+		<script src="js/jquery.blockUI.js"></script>
+		<script src="js/edit.js" type="text/javascript"></script>
+		<link href="css/ridemapadmin.css" rel="stylesheet" type="text/css"/>
 	</head>
 	<body>
 		<div id="control-panel">

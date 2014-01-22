@@ -32,8 +32,8 @@
  */
  
 require_once 'config.php';
-require_once (dirname(__FILE__) . '/includes/db.php');
-require_once (dirname(__FILE__) . '/includes/websnapr.php');
+require_once ('includes/db.inc');
+require_once ('includes/websnapr.inc');
 
 const FIELDS_BASIC = 0;  
 const FIELDS_FULL = 1;  

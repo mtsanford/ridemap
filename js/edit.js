@@ -36,7 +36,7 @@ RouteEdit = {
 		} else {
 			RouteEdit.setState(RouteEdit.State.STATE_DEAD_LINE);
 			$.ajax({
-				url: "../getroutes.php?fields=full&q=" + RouteEdit.id,
+				url: "getroutes.php?fields=full&q=" + RouteEdit.id,
 				dataType: 'json',
 				success: RouteEdit.loadRoute
 			});

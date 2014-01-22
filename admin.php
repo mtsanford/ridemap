@@ -18,18 +18,18 @@
  *
  */	 
 
-require_once '../config.php';
-require_once (dirname(__FILE__) . '/../includes/db.php');
-require_once (dirname(__FILE__) . '/../includes/websnapr.php');
+require_once 'config.php';
+require_once ('includes/db.inc');
+require_once ('includes/websnapr.inc');
 
 $RM_redirect_to_login = true;
-require_once (dirname(__FILE__) . '/../includes/checkpermission.php');
+require_once ('includes/checkpermission.inc');
 
 
 if (isset($_GET['id'])) {
-	include_once("edit.htm");
+	include_once("includes/edit.inc");
 } else {
-	include_once("admin.htm");
+	include_once("includes/admin.inc");
 }
 
 echo $html;
