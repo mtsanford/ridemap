@@ -4,48 +4,55 @@ html, body, #map-canvas {
 }
 
 .rm_tooltip {
-background-color: #eeeeee;
-font-weight: bold;
-border: 2px #ababab solid;
-padding: .5mm;
+	background-color: #eeeeee;
+	font-weight: bold;
+	border: 2px #ababab solid;
+	padding: .5em;
 }
 
 .rm_infodiv {
-width:256px;
+	width: 240px;
+	text-align:center;
+}
+
+.rm_picture {
+	border:0;
+	width: 240px;
 }
 
 .rm_picture a:link {
-text-decoration:none;
-border-style:none !important;
-border-width:thin;
-color:#000000;
+	text-decoration:none;
+	border-style:none !important;
+	border-width:thin;
+	color:#000000;
 }
+
 .rm_picture a:visited {
-text-decoration:none;
-border-style:none !important;
-border-width:thin;
-color:#000000;
+	text-decoration:none;
+	border-style:none !important;
+	border-width:thin;
+	color:#000000;
 }
+
 .rm_picture a:hover {
-text-decoration:none;
-border-style:none !important;
-border-width:thin;
-color:#CC9900;
+	text-decoration:none;
+	border-style:none !important;
+	border-width:thin;
+	color:#CC9900;
 }
-.rm_picture {
-border:0;
-text-align:center
-}
+
 .rm_img {
-border:0;
-text-align:center
+	border:0;
+	text-align:center
+}
+.rm_mag {
+	padding:0.5em;
 }
 
 .rm_caption {
-font-size:large;
-text-align:center
+	margin: 0.5em 0em;
+	font-size:1.2em;
 }
+
 .rm_description {
-font-size:small;
-text-align:center
 }

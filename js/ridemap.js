@@ -144,19 +144,18 @@ Ridemap.prototype = {
 	makeInfoHTML : function(route) {
 		var html = 
 			'<div class="rm_infodiv"><div class="rm_caption">CAPTION</div><div class="rm_picture">'
-			+ '<a href="LINK_URL" target="_blank"><img class="rm_img" src="PICTURE_URL" width="PICTURE_WIDTH" '
-			+ 'height="PICTURE_HEIGHT" /></a></div><div class="rm_description">DESCRIPTION</div>'
+			+ '<a href="LINK_URL" target="_blank"><img class="rm_img" src="PICTURE_URL" width="240px" />'
+			+ '</a></div><div class="rm_description">DESCRIPTION</div>'
 	
 		if (this.opts.mode == 'admin') {
-			html = html + '<div id="adminpanel"><div id="rm_label">Label: LABEL</div>'
-			            + '<div id="rm_tags">Tags: TAGS</div>'
-			            + '<span id="rm_edit-ID">edit</span><span> - </span>'
-						+ '<span id="rm_delete-ID">delete</span></div></div>';
+			html = html + '</div><div class="rm_adminpanel"><div>Label: LABEL</div>'
+			            + '<div>Tags: TAGS</div><div class="admin-links">'
+			            + '<a id="rm_edit-ROUTEID" class="admin-link" ref="#">edit</a>'
+						+ '<a id="rm_delete-ROUTEID" class="admin-link" href="#">delete</a></div></div>';
 		} else {
-			html = html + '<img id="rm_mag" src="img/mg.png" width="20" height="20" /></div>';
+			html = html + '<img class="rm_mag" src="img/mg.png" /></div>';
 		}
 			
-		html = html.replace(/ID/g, route['ID']);
 		html = html.replace(/CAPTION/g, route['caption']);
 		html = html.replace(/LINK_URL/g, route['link_url']);
 		html = html.replace(/PICTURE_URL/g, route['picture_url']);
@@ -165,6 +164,7 @@ Ridemap.prototype = {
 		html = html.replace(/DESCRIPTION/g, route['description']);
 		html = html.replace(/LABEL/g, route['label']);
 		html = html.replace(/TAGS/g, route['tags']);
+		html = html.replace(/ROUTEID/g, route['ID']);
 
 		return html;
 	},

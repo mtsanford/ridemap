@@ -150,7 +150,7 @@ else {
 				while ($tag_row = $tags_result->fetch_object()) {
 					$tags[] = $tag_row->tag;
 				}
-				$route['tags'] = implode( ' ', $tags );
+				$route['tags'] = implode( ', ', $tags );
 			}
 			
 			if ($fields >= FIELDS_COMPLETE) {
