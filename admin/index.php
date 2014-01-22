@@ -25,29 +25,10 @@ require_once (dirname(__FILE__) . '/../includes/websnapr.php');
 $RM_redirect_to_login = true;
 require_once (dirname(__FILE__) . '/../includes/checkpermission.php');
 
-$logout_html = "";
-if ($RM_native_authentication)
-{
-	$logout_html = <<<EOD
-		<div style="position:absolute; bottom:10px;">
-		<a href="login.php?logout">logout</a>&nbsp;&nbsp;<a href="login.php?changepass">Change Password</a>
-		</div>
-EOD;
-}
 
 if (isset($_GET['id'])) {
-
-	$id = $_GET['id'];
-
-	if ($id != 'new' && !is_numeric($id)) 
-		die("Bad id parameter");
-		
 	include_once("edit.htm");
 } else {
-	if (isset($_GET['load']) && is_numeric($_GET['load']))
-	{
-		$routeID = $_GET['load'];
-	}
 	include_once("admin.htm");
 }
 

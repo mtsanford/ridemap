@@ -141,6 +141,9 @@ Ridemap.prototype = {
 		}
 	},
 	
+	zoomToRoute: function(id) {
+	},
+	
 	makeInfoHTML : function(route) {
 		var html = 
 			'<div class="rm_infodiv"><div class="rm_caption">CAPTION</div><div class="rm_picture">'
