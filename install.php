@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS `routes` (
   `date_added` datetime default NULL,
   `encoded_polyline` text,
   `marker_pos` text,
-  `color` varchar(32) default 'purple',
+  `color` varchar(32),
   `bound_west` float default '-180',
   `bound_east` float default '180',
   `bound_north` float default '90',

@@ -56,9 +56,9 @@ if (strlen($id) > 0) {
 		description = '$description',
 		picture_url = '$picture_url',
 		link_url = '$link_url',
-		color = '$color'
+		color = '$color',
 		encoded_polyline = '$encoded_polyline',
-		marker_pos = '$marker_pos,
+		marker_pos = '$marker_pos',
 		bound_south = $bound_south,
 		bound_west = $bound_west,
 		bound_north = $bound_north,

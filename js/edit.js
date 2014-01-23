@@ -24,6 +24,9 @@ RouteEdit = {
 		
 		$('#submit_btn').click(function() {
 			RouteEdit.getEncodedPolyLine();
+			if (RouteEdit.validate()) {
+				$('#routeform').submit();
+			}
 		});
 		
 		if (RouteEdit.new_route) {
@@ -120,13 +123,17 @@ RouteEdit = {
 	},
 	
 	getEncodedPolyLine: function() {
+		
+		var result = RouteEdit.directionsDisplay.getDirections();
+		// Only grab new route data if it's available
+		if (!result) return;
+
 		// The first point of each path in a step is typically the same
 		// as the last point in the previous path.  Check for this
 		// so we don't have multiple copies of the point on the final path.
 		var lastPoint = new google.maps.LatLng(0,0);
-		var points = [];
-		var result = RouteEdit.directionsDisplay.getDirections();
 		var index = RouteEdit.directionsDisplay.getRouteIndex();		
+		var points = [];
 		
 		result.routes[index].legs.forEach(function(leg) {
 			leg.steps.forEach(function(step) {
@@ -166,11 +173,6 @@ RouteEdit = {
 			$('#edit_id').val(RouteEdit.id);
 		}
 		
-		console.log(bound_south + ', ' + bound_west + ', ' + bound_north + ', ' + bound_east);
-		console.log(centerPoint.lat() + ',' + centerPoint.lng());
-		
-		$( "#routeform" ).submit();
-			
 	},
 
 	clear: function() {
@@ -206,6 +208,34 @@ RouteEdit = {
 
 		RouteEdit.state = state;
 		$("#map-message").text(messages[state]);
+	},
+	
+	validate: function() {
+		var label_validator = /^[ ]*[a-zA-Z][a-zA-Z\d]+[ ]*$/;
+		if (!$('#label').val().trim().match(label_validator)) {
+			alert("Invalid label");
+			return false;
+		}
+		
+		if ($('#caption').val().trim().length == 0) {
+			alert("Invalid caption");
+			return false;
+		}
+		
+		var url_match = /\b(?:(?:https?|ftp):\/\/|www\.)[-a-z0-9+&@#\/%?=~_|!:,.;]*[-a-z0-9+&@#\/%=~_|]/i
+		var picture_url = $('#link_url').val().trim();
+		if (picture_url.length > 0 && !picture_url.match(url_match) && picture_url != "websnapr") {
+			alert("Invalid picture URL");
+			return false;
+		}
+		
+		var link_url = $('#link_url').val().trim();
+		if (link_url.length > 0 && !link_url.match(url_match)) {
+			alert("Invalid link URL");
+			return false;
+		}
+
+		return true;
 	},
 	
 	directionsService: null,
