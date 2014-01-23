@@ -32,7 +32,7 @@ $html = <<<EOD
 	<body>
 		<div id="control-panel">
 			<div id="control-panel-inner">
-				<form name="routeform" action="editroute.php" method="post" >
+				<form id="routeform" name="routeform" action="editroute.php" method="post" >
 					<div class="rm_admin_label">Label:</div>
 					<input type="text" name="label" size="42" maxlength="63" value="{$label}" id="label"></input>
 					<div class="rm_small">(required) Internal label for this route - start with letter, no spaces</div>
@@ -70,8 +70,13 @@ $html = <<<EOD
 			
 					<!-- HIDDEN TABLE DATA -->
 					<div style="visibility:hidden; display:none">
+					<input type="text" name="edit_id" id="edit_id" maxlength="64" value="" />
 					<input type="text" name="encoded_polyline" id="encoded_polyline" maxlength="16000" value="" />
 					<input type="text" name="marker_pos" id="marker_pos" size="64" maxlength="64" value=""></input>
+					<input type="text" name="bound_south" id="bound_south" size="64" maxlength="64" value=""></input>
+					<input type="text" name="bound_west" id="bound_west" size="64" maxlength="64" value=""></input>
+					<input type="text" name="bound_north" id="bound_north" size="64" maxlength="64" value=""></input>
+					<input type="text" name="bound_east" id="bound_east" size="64" maxlength="64" value=""></input>
 					</div>
 
 				</form>

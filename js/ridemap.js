@@ -174,7 +174,6 @@ Ridemap.prototype = {
 	
 	fetchRoutes: function(params, success) {
 		var url = 'getroutes.php' + ((Object.keys(params).length > 0) ? ('?' + $.param(params)) : '');
-		console.log('fetchRoutes: ' + url);
 		$.ajax({
 			url: url,
 			context: this,

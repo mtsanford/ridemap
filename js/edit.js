@@ -141,7 +141,35 @@ RouteEdit = {
 		
 		var encoded_polyline = google.maps.geometry.encoding.encodePath(points);
 		$('#encoded_polyline').val(encoded_polyline);
-		console.log(encoded_polyline);
+
+		var centerPoint = points[Math.floor(points.length / 2)];
+		$('#marker_pos').val('' + centerPoint.lat() + ',' + centerPoint.lng());
+
+		var bound_south = 90;
+		var bound_west = 180;
+		var bound_north = -90;
+		var bound_east = -180;
+		
+		points.forEach(function(p) {
+			bound_south = Math.min(p.lat(), bound_south);
+			bound_west = Math.min(p.lng(), bound_west);
+			bound_north = Math.max(p.lat(), bound_north);
+			bound_east = Math.max(p.lng(), bound_east);
+		});
+		
+		$('#bound_south').val(bound_south);
+		$('#bound_west').val(bound_west);
+		$('#bound_north').val(bound_north);
+		$('#bound_east').val(bound_east);
+		
+		if (RouteEdit.id != 'new') {
+			$('#edit_id').val(RouteEdit.id);
+		}
+		
+		console.log(bound_south + ', ' + bound_west + ', ' + bound_north + ', ' + bound_east);
+		console.log(centerPoint.lat() + ',' + centerPoint.lng());
+		
+		$( "#routeform" ).submit();
 			
 	},
 

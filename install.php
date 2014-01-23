@@ -1,8 +1,15 @@
 <?php
 
-	require_once '../config.php';
-	require_once (dirname(__FILE__) . '/../includes/db.php');
-	require_once (dirname(__FILE__) . '/../includes//websnapr.php');
+	require_once 'config.php';
+	require_once ('includes/db.inc');
+	require_once ('includes/websnapr.inc');
+	
+    $result = DB_Query("SELECT * FROM settings WHERE setting = 'version';");
+
+	if ($result->num_rows > 0) {
+		echo "<h2>Already installed</h2>";
+		die;
+	}
 	
 	$query = <<<EOD
 CREATE TABLE IF NOT EXISTS `routes` (
@@ -26,9 +33,6 @@ EOD;
 		
     $result = DB_Query($query);
     
-    if ($result == false)
-		die ("can't create route table");
-
 	$query = <<<EOD
 CREATE TABLE IF NOT EXISTS `cache` (
   `query` varchar(128) NOT NULL default '',
@@ -37,10 +41,7 @@ CREATE TABLE IF NOT EXISTS `cache` (
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 EOD;
 
-    $result=DB_Query($query);
-
-    if ($result == false)
-		die ("can't create cache table");
+    $result = DB_Query($query);
 
 	$query = <<<EOD
 CREATE TABLE IF NOT EXISTS `settings` (
@@ -50,10 +51,8 @@ CREATE TABLE IF NOT EXISTS `settings` (
 EOD;
 
     $result = DB_Query($query);
-
-    if ($result == false)
-		die ("can't create settings table");
-
+		
+    $result = DB_Query("INSERT INTO settings (setting, value) VALUES ('version', '2.0')");
 
 	$query = <<<EOD
 CREATE TABLE IF NOT EXISTS `tags` (
@@ -64,11 +63,8 @@ CREATE TABLE IF NOT EXISTS `tags` (
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 EOD;
 
-    $result=DB_Query($query);
-
-    if ($result == false)
-		die ("can't create tags table");
+    $result = DB_Query($query);
 
 	echo "<h2>Install Succesful</h2><br /><br />";
-	echo"<h3>Please click to go to <a href='.'>admin</a></h3>";
+	echo"<h3>Please click to go to <a href='admin.php'>admin</a></h3>";
 

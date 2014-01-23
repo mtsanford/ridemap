@@ -30,3 +30,8 @@ function DB_EscapeString($string) {
 	$db = DB_Connect();
 	return $db->real_escape_string($string);
 }
+
+function DB_InsertID() {
+	$db = DB_Connect();
+	return mysqli_insert_id($db);
+}
