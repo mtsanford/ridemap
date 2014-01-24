@@ -4,13 +4,12 @@ if ($op == 'admin') {
 
 	RequireAuthentication();
 
-	$logout_html = "";
 	if (IsNativeAuthentication()) {
-		$logout_html = <<<EOD
-			<div style="position:absolute; bottom:10px;">
-				<a href="?op=logout">logout</a><a href="?op=changepass">Change Password</a>
-			</div>
-EOD;
+		$logout_html = '<div class="rm_loginlinks">
+		                  <a href="?op=logout">logout</a><a href="?op=changepass">change password</a>
+		                </div>';
+	} else {
+		$logout_html = "";
 	}
 	
 	$opts = $CONFIG['ROUTE_DEFAULTS'];

@@ -3,11 +3,12 @@
 	require_once '../config.php';
 	require_once ('../includes/db.inc');
 	
-    $result = DB_Query("SELECT * FROM settings WHERE setting = 'version';");
-
-	if ($result->num_rows > 0) {
-		echo "<h2>Already installed</h2>";
-		die;
+	if (DB_Installed()) {
+		$result = DB_Query("SELECT * FROM settings WHERE setting = 'version';");
+		if ($result->num_rows > 0) {
+			echo "<h2>Already installed</h2>";
+			die;
+		}
 	}
 	
 	$query = <<<EOD

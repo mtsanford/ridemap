@@ -39,7 +39,21 @@ const FIELDS_FULL = 1;
 
 // TODO validate query string
 $qs = DB_EscapeString($_SERVER["QUERY_STRING"]);
-$output = "";
+
+$output = json_encode(Array(
+	'routes' => Array(),
+	'bounds' => Array(
+		's' => "25", 
+		'w' => "-140",
+		'n' => "55", 
+		'e' => "-60"
+		),
+));
+
+if (!DB_Installed()) {
+	echo $output;
+	exit;
+}
 
 // Try to fetch cached data first.		
 $query = "SELECT json FROM cache WHERE query = '" . $qs . "' LIMIT 1;"; 

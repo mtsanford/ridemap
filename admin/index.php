@@ -21,6 +21,10 @@
 require_once '../config.php';
 require_once ('../includes/db.inc');
 
+if (!DB_Installed()) {
+	die("Not installed");
+}
+
 session_start();
 
 $op_query_string = empty($_GET['op']) ? 'admin' : $_GET['op'];

@@ -6,7 +6,7 @@ var Ridemap = function(id, opts) {
 	this.opts = $.extend(Ridemap.utils.getUrlParameters(['q', 'label', 'tag', 'region', 'wheelzoom']), opts);
 	
 	// Having no default route color specified will not do.
-	if (typeof opts['ROUTE_COLOR'] == "undefined" ||  this.opts.ROUTE_COLOR.length == 0) {
+	if ((typeof this.opts.ROUTE_COLOR == "undefined") ||  this.opts.ROUTE_COLOR.length == 0) {
 		this.opts.ROUTE_COLOR = "#55F";
 	}
 	

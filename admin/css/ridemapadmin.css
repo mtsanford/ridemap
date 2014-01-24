@@ -24,9 +24,10 @@ input[type="button"] {
 
 div#control-panel {
 	float: left;
-	width: 320px;
+	width: 319px;
 	height: 100%;
 	background-color: #CCC;
+	border-right: 1px solid gray;
 }
 
 #control-panel-inner {
@@ -57,7 +58,6 @@ div#control-panel {
 	margin:0px;
 	height:100%;
 	width: 100%;
-	border-left: 1px solid gray;
 }
 
 div#control-panel a {
@@ -84,6 +84,11 @@ div#control-panel a:hover {
 }
 
 .rm_adminpanel {
+}
+
+.rm_loginlinks {
+	position:absolute;
+	bottom:1em;
 }
 
 /* 
