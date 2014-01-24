@@ -37,6 +37,9 @@ RouteEdit = {
 		        : new google.maps.LatLngBounds( new google.maps.LatLng(-89, -179), new google.maps.LatLng(89, 179) );
 			RouteEdit.map.fitBounds(bounds);
 		} else {
+			// Stash the value so that the edit_post script knows it's an update
+			$('#edit_id').val(RouteEdit.id);
+			
 			RouteEdit.setState(RouteEdit.State.STATE_DEAD_LINE);
 			$.ajax({
 				url: "../getroutes.php?fields=full&q=" + RouteEdit.id,
@@ -168,10 +171,6 @@ RouteEdit = {
 		$('#bound_west').val(bound_west);
 		$('#bound_north').val(bound_north);
 		$('#bound_east').val(bound_east);
-		
-		if (RouteEdit.id != 'new') {
-			$('#edit_id').val(RouteEdit.id);
-		}
 		
 	},
 

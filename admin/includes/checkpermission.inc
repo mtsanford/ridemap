@@ -1,11 +1,5 @@
 <?php
 	
-	/* 
-	 * Set $RM_redirect_to_login to TRUE before including this
-	 * file if page should redirect to login page, otherwise
-	 * a HTTP 403 Forbidden error will be issued.
-	 */
-	 
 function IsNativeAuthentication() {
 	static $RM_native_authentication = null;
 	if ($RM_native_authentication === null) {

@@ -22,7 +22,6 @@
 			!isset($_POST['bound_east']) ||
 			!isset($_POST['color'])
 		) die ("incomplete data posted");
-		
 
 	// Get strings ready for use in mysql
 	$data = array();
