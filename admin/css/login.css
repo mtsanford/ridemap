@@ -1,0 +1,48 @@
+body {
+	margin: 0px;
+	padding: 0px;
+}
+
+.c {
+	background-color: #ccccee;
+	text-align: center;
+	width:260px;
+	border: 1px solid #000000;
+	padding: 20px;
+	margin: 20px;
+	margin-left: auto; 
+	margin-right: auto;
+}
+
+form {
+	text-align: center;
+}
+
+input {
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 1em;
+	margin-bottom: 1em;
+	width: 180px;
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+}
+
+input[type="submit"] {
+	width: 80px;
+}
+
+form div {
+	margin: 0em 0.5em;
+}
+
+.m {
+	margin-bottom: 8px;
+	font-size:1.5em;
+}
+
+.err {
+	margin-bottom: 6px;
+	font-size:0.8em;
+	color:red;
+}

@@ -22,14 +22,14 @@ require_once '../config.php';
 require_once ('../includes/db.inc');
 require_once ('../includes/websnapr.inc');
 
-$RM_redirect_to_login = true;
-require_once ('includes/checkpermission.inc');
+session_start();
 
 $op_query_string = empty($_GET['op']) ? 'admin' : $_GET['op'];
 $ops = explode('/', $op_query_string);
 $op = $ops[0];
 
-//include_once("includes/login.inc");
+include_once("includes/checkpermission.inc");
+include_once("includes/login.inc");
 include_once("includes/admin.inc");
 include_once("includes/edit.inc");
 include_once("includes/edit_post.inc");

@@ -5,7 +5,10 @@
 	 * file if page should redirect to login page, otherwise
 	 * a HTTP 403 Forbidden error will be issued.
 	 */
-	
+
+
+if ($op != "login" && $op != "setpass") {
+
 	$RM_native_authentication = false;
 
 	// Open an optional permission.php to check for
@@ -18,37 +21,22 @@
 		$cwd = getcwd();
 		$olderr = error_reporting(0);
 		include ($permissions_file);
-		if ($RM_have_permission == false)
-		{
+		if ($RM_have_permission == false) {
 			header("HTTP/1.0 403");
-			die("<html><body><h1>Permission Denied</h1></body></html>");
+			echo "<html><body><h1>Permission Denied</h1></body></html>";
+			exit;
 		}
 		error_reporting($olderr);
 		chdir($cwd);
 	}
 
 	// If it doesn't exist, use our own built in authentication	
-	else
-	{
+	else {
 		$RM_native_authentication = true;
-		session_start();
-		if ( isset( $_SESSION['admin'] ) && $_SESSION['admin'] == "1" )
-		{
-			// user authenticated
-		}
-		else
-		{
-			if ($RM_redirect_to_login)
-			{
-				// stash away intended destination so we can go to it after login
-				$_SESSION['loginurl'] = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER["SCRIPT_NAME"];
-				header( "Location:login.php" );
-			}
-			else
-			{
-				header("HTTP/1.0 403");
-			}
-			exit();
+		if (empty($_SESSION['admin']) || $_SESSION['admin'] != "1") {
+			header( "Location:?op=login" );
+			exit;
 		}
 	}
 	
+}
