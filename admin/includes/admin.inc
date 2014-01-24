@@ -15,7 +15,8 @@ if ($op == 'admin') {
 	$opts = $CONFIG['ROUTE_DEFAULTS'];
 	$opts['mode'] = 'admin';
 	if (isset($_GET['load']) && is_numeric($_GET['load'])) {
-		$opts['load'] = $_GET['load'];
+		$opts['q'] = $_GET['load'];
+		$opts['openinfo'] = 'true';
 	}
 	$opts = json_encode($opts);
 	

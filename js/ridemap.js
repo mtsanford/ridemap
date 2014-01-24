@@ -1,9 +1,17 @@
 
-// Create a ridemap on the elemenent with specified ID.   Options
-// can be specified using opts, or if missing URL query parameters
-// will be used.
+/*
+ *	Ridemap javascript class
+ *
+ *  Create a ridemap on the elemenent with specified ID.
+ *  Handles all interaction with Google MAPS
+ *
+ *  Options can be on the query string, but can be passed in
+ *  in an options object on creation
+ *
+ */
+
 var Ridemap = function(id, opts) {
-	this.opts = $.extend(Ridemap.utils.getUrlParameters(['q', 'label', 'tag', 'region', 'wheelzoom']), opts);
+	this.opts = $.extend(Ridemap.utils.getUrlParameters(['q', 'label', 'tag', 'region', 'wheelzoom', 'openinfo']), opts);
 	
 	// Having no default route color specified will not do.
 	if ((typeof this.opts.ROUTE_COLOR == "undefined") ||  this.opts.ROUTE_COLOR.length == 0) {
@@ -43,9 +51,6 @@ Ridemap.prototype = {
 		data.routes.forEach(function(route) {
 			this.routes[route.ID] = route;
 			route.status = Ridemap.Status.NOT_LOADED;
-			route.infoWindow = new google.maps.InfoWindow({
-				content: "<p>loading...</p>",
-			});
 			route.marker = new google.maps.Marker({
 				position: Ridemap.utils.parseLatLng(route.marker_pos),
 				map: this.map,
@@ -67,9 +72,6 @@ Ridemap.prototype = {
 			this.fetchRoutes(params, this.onZoomRoutesFetched);
 		}
 		
-		if (this.opts.load) {
-			this.zoomToRoute(parseInt(this.opts.load));
-		}
 	},
 
 	// Set up a click event listener for a marker
@@ -77,41 +79,43 @@ Ridemap.prototype = {
 		var route = this.routes[routeID];
 		var map = this;
 		google.maps.event.addListener(marker, 'click', function(event) {
-			route.infoWindow.open(map.map, marker);
-			if (map.activeRoute != routeID) {
-				if (map.activeRoute) {
-					map.routes[map.activeRoute].infoWindow.close();
-				}
-				map.activeRoute = routeID;
 
-				if (!Ridemap.utils.ctrlDown) {
-					map.routes.forEach(function(_route) {
-						if (_route.ID != routeID && _route.line) {
-							_route.line.setVisible(false);
-						}
-					});
-				}
-				
-				map.loadRoute(routeID, function() {
-					route.line.setVisible(true);
+			route.infoWindow = route.infoWindow || new google.maps.InfoWindow({
+				content: "<p>loading...</p>",
+			});
+			
+			map.openInfoWindow(route);
+
+			if (!Ridemap.utils.ctrlDown) {
+				map.routes.forEach(function(_route) {
+					if (_route.ID != routeID && _route.line) {
+						_route.line.setVisible(false);
+					}
 				});
-
 			}
+				
+			map.loadRoute(routeID, function() {
+				route.line.setVisible(true);
+			});
+
 		});
 	},
 
 	// A route set was requested to preload, show lines, and set map
 	// bounds.   So act on the data!
 	onZoomRoutesFetched : function(data) {
-		data.routes.forEach(function(routeData) {
-			var route = this.routes[routeData.ID];
-			this.setFullRoute(route, routeData);
-			route.line.setVisible(true);
-		}, this);
 		this.map.fitBounds(new google.maps.LatLngBounds(
 			new google.maps.LatLng(data.bounds.s, data.bounds.w),
 			new google.maps.LatLng(data.bounds.n, data.bounds.e)
 		));
+		data.routes.forEach(function(routeData) {
+			var route = this.routes[routeData.ID];
+			this.setFullRoute(route, routeData);
+			route.line.setVisible(true);
+			if (this.opts.openinfo) {
+				this.openInfoWindow(route);
+			}
+		}, this);
 	},
 
 	// From data fetched from getroutes.php, fill in all the data
@@ -133,6 +137,7 @@ Ridemap.prototype = {
 				map: this.map
 			});
 			
+			route.infoWindow = route.infoWindow || new google.maps.InfoWindow();
 			route.infoWindow.setContent(this.makeInfoHTML(route));
 			
 			google.maps.event.addListener(route.infoWindow, 'domready', function() {
@@ -158,21 +163,24 @@ Ridemap.prototype = {
 	
 	zoomToRoute: function(routeID) {
 		var route = this.routes[routeID];
-
-		if (this.activeRoute && this.activeRoute != routeID) {
-			this.routes[this.activeRoute].infoWindow.close();
-		}
-		
-		route.infoWindow.open(this.map, route.marker);
-		this.activeRoute = routeID;
-
 		this.loadRoute(routeID, function() {
+			this.openInfoWindow(route);
 			route.line.setVisible(true);
 			this.map.fitBounds(new google.maps.LatLngBounds(
 				new google.maps.LatLng(route.bound_south, route.bound_west),
 				new google.maps.LatLng(route.bound_north, route.bound_east)
 			));
 		});
+	},
+	
+	// Open a routes infowindow, and close any other infowindow that
+	// may be open
+	openInfoWindow: function(route) {
+		if (this.activeRoute && this.activeRoute != route.ID) {
+			this.routes[this.activeRoute].infoWindow.close();
+		}
+		route.infoWindow.open(this.map, route.marker);
+		this.activeRoute = route.ID;
 	},
 	
 	makeInfoHTML : function(route) {
