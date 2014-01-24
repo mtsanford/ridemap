@@ -6,12 +6,8 @@
 
  if ($op == 'edit' && $_SERVER['REQUEST_METHOD'] == 'POST') {
 
-	// require_once ('config.php');
-	// require_once ('includes/db.inc');
-	// require_once ('includes/websnapr.inc');
-
-	// require_once ('includes/checkpermission.inc');
-
+ 	RequireAuthentication();
+ 
 	if (	!isset($_POST['label']) ||
 			!isset($_POST['caption']) ||
 			!isset($_POST['description']) ||
@@ -31,7 +27,7 @@
 	// Get strings ready for use in mysql
 	$data = array();
 	foreach ($_POST as $key => $value) {
-		$data[$key] = DB_EscapeString($value);
+		$data[$key] = DB_EscapeString(trim($value));
 	}
 	extract($data);
 

@@ -2,20 +2,25 @@
 
 if ($op == 'admin') {
 
-	$options = Array();
-	if (isset($_GET['load']) && is_numeric($_GET['load'])) {
-		$options['routeID'] = $_GET['load'];
-	}
-	$options = json_encode($options);
+	RequireAuthentication();
 
 	$logout_html = "";
-	if ($RM_native_authentication) {
+	if (IsNativeAuthentication()) {
 		$logout_html = <<<EOD
 			<div style="position:absolute; bottom:10px;">
-			<a href="?op=logout">logout</a>&nbsp;&nbsp;<a href="?op=changepass">Change Password</a>
+				<a href="?op=logout">logout</a><a href="?op=changepass">Change Password</a>
 			</div>
 EOD;
 	}
+	
+	$opts = $CONFIG['ROUTE_DEFAULTS'];
+	$opts['mode'] = 'admin';
+	if (isset($_GET['load']) && is_numeric($_GET['load'])) {
+		$opts['load'] = $_GET['load'];
+	}
+	$opts = json_encode($opts);
+	
+	$google_maps_key_string = (strlen($CONFIG['GOOGLEMAPS_API_KEY']) == 0) ? "" : ("key=" . $CONFIG['GOOGLEMAPS_API_KEY'] . "&");	
 
 	$html = <<<EOD
 	<!DOCTYPE html>
@@ -23,7 +28,7 @@ EOD;
 	  <head>
 		<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
 		<title>Ridemap - Admin</title>
-		<script src="//maps.googleapis.com/maps/api/js?libraries=geometry&sensor=false" type="text/javascript"></script>
+		<script src="//maps.googleapis.com/maps/api/js?{$google_maps_key_string}libraries=geometry&sensor=false" type="text/javascript"></script>
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 		<script src="../js/ridemap.js" type="text/javascript"></script>
 		<link href="../css/ridemap.css" rel="stylesheet" type="text/css"/>
@@ -31,12 +36,9 @@ EOD;
 		<script type="text/javascript">
 
 		var Admin = {
-			options: JSON.parse('{$options}'),
 			rideMap : null,
 			initialize : function() {
-				Admin.rideMap = new Ridemap('map-canvas', Admin.options.routeID 
-				                                          ? {mode: 'admin', load: Admin.options.routeID}
-				                                          : {mode: 'admin'});
+				Admin.rideMap = new Ridemap('map-canvas', {$opts});
 			},
 			newRoute : function() {
 				var bounds =  Admin.rideMap.map.getBounds();
@@ -57,9 +59,7 @@ EOD;
 			<div id="control-panel">
 				<div id="control-panel-inner">
 					<p>Click on a marker to view EDIT and DELETE options for a route</p>
-					<p>Click 'New Route' to create a new route</p>
 					<div style="margin:8px;"><input type="button" onclick="Admin.newRoute();" value="New Route"/></div>
-					<p>Click 'Tag Routes' to use route tagging tool</p>
 					<div style="margin:8px;"><input type="button" onclick="window.location='tag.php';" value="Tag Routes"/></div>
 					{$logout_html}
 				</div>

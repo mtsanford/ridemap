@@ -33,11 +33,9 @@
  
 require_once 'config.php';
 require_once ('includes/db.inc');
-require_once ('includes/websnapr.inc');
 
 const FIELDS_BASIC = 0;  
 const FIELDS_FULL = 1;  
-const FIELDS_COMPLETE = 2;  
 
 // TODO validate query string
 $qs = DB_EscapeString($_SERVER["QUERY_STRING"]);
@@ -49,13 +47,11 @@ $result = DB_Query($query);
 
 // Cached result found.  Use it.
 if ($result->num_rows > 0) {
-	// just use cached result
-	$record = $result->fetch_object();
-	$output = $record->json;
-} 
+	$output = $result->fetch_object()->json;
+}
 
 // No cached result found
-// Perform an actual query on a subset of routes, based on
+// Perform a query on a subset of routes, based on
 // region, tag, ID, labels, or all routes.   Calculate the geographic 
 // bounds of the set.
 else {
@@ -107,7 +103,6 @@ else {
 		switch ($_GET['fields']) {
 			case 'basic': $fields = FIELDS_BASIC; break;
 			case 'full': $fields = FIELDS_FULL; break;
-			case 'complete': $fields = FIELDS_COMPLETE; break;
 		}
 	}
 

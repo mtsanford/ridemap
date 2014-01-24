@@ -2,13 +2,14 @@
 
 function DB_Connect()
 {
-	global $db, $db_host, $db_username, $db_password, $db_database;
+	global $CONFIG;
 	static $db = null;
 	
-	if (!empty($db))
+	if (!empty($db)) {
 		return $db;
+	}
 
-	$db = mysqli_connect($db_host, $db_username, $db_password, $db_database);
+	$db = mysqli_connect($CONFIG['DB_HOST'], $CONFIG['DB_USERNAME'], $CONFIG['DB_PASSWORD'], $CONFIG['DB_DATABASE']);
 	if (!$db) {
 		die('Connect Error (errno=' . mysqli_connect_errno() . '): ' . mysqli_connect_error());
 	}

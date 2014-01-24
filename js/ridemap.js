@@ -3,7 +3,13 @@
 // can be specified using opts, or if missing URL query parameters
 // will be used.
 var Ridemap = function(id, opts) {
-	this.opts = opts || Ridemap.utils.getUrlParameters(['q', 'label', 'tag', 'region', 'wheelzoom', 'load']);
+	this.opts = $.extend(Ridemap.utils.getUrlParameters(['q', 'label', 'tag', 'region', 'wheelzoom']), opts);
+	
+	// Having no default route color specified will not do.
+	if (typeof opts['ROUTE_COLOR'] == "undefined" ||  this.opts.ROUTE_COLOR.length == 0) {
+		this.opts.ROUTE_COLOR = "#55F";
+	}
+	
 	this.admin = this.opts.mode && (this.opts.mode == 'admin');
 	this.routes = [];
 	this.activeRoute = 0;
@@ -122,7 +128,7 @@ Ridemap.prototype = {
 				draggable: false,
 				strokeOpacity: 0.7,
 				strokeWeight: 5,
-				strokeColor: route.color,
+				strokeColor: route.color.length == 0 ? this.opts.ROUTE_COLOR : route.color,
 				visible: false,
 				map: this.map
 			});
@@ -171,6 +177,9 @@ Ridemap.prototype = {
 	
 	makeInfoHTML : function(route) {
 		var extra;
+		var linkHtml;
+		var picture_url = route['picture_url'].length == 0 ? this.opts.PICTURE_URL : route['picture_url'];
+
 		if (this.opts.mode == 'admin') {
 			extra = '<div class="rm_adminpanel">'
 			      + '  <div>Label: LABEL</div>'
@@ -184,10 +193,24 @@ Ridemap.prototype = {
 			extra = '<div class="rm_viewpanel"><img id="rm_mag-ROUTEID" class="rm_mag" src="img/mg.png" /></div>';
 		}
 
+		if (picture_url.length > 0) {
+			if (route['link_url'].length > 0) {
+				linkHtml = '<div class="rm_picture"><a href="LINK_URL" target="_blank"><img src="PICTURE_URL" /></a></div>';
+			} else {
+				linkHtml = '<div class="rm_picture"><img src="PICTURE_URL" /></div>';
+			}
+		} else {
+			if (route['link_url'].length > 0) {
+				linkHtml = '<div class="rm_morelink"><a href="LINK_URL" target="_blank">' +  this.opts.MORE_TEXT + '</a></div>';
+			} else {
+				linkHtml = "";
+			}
+		}
+		
 		var html = 
 		      '<div class="rm_infodiv">'
 			+ '  <div class="rm_caption">CAPTION</div>'
-			+ '  <div class="rm_picture"><a href="LINK_URL" target="_blank"><img src="PICTURE_URL" /></a></div>'
+			+  linkHtml
 			+ '  <div class="rm_description">DESCRIPTION</div>'
 			+ '</div>'
 			+  extra;
@@ -195,7 +218,7 @@ Ridemap.prototype = {
 			
 		html = html.replace(/CAPTION/g, route['caption']);
 		html = html.replace(/LINK_URL/g, route['link_url']);
-		html = html.replace(/PICTURE_URL/g, route['picture_url']);
+		html = html.replace(/PICTURE_URL/g, picture_url);
 		html = html.replace(/DESCRIPTION/g, route['description']);
 		html = html.replace(/LABEL/g, route['label']);
 		html = html.replace(/TAGS/g, route['tags']);

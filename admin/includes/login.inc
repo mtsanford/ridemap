@@ -61,6 +61,9 @@ if ($op == 'login' && $_SERVER['REQUEST_METHOD'] == 'POST') {
  *	
  */
 if ($op == 'changepass' && $_SERVER['REQUEST_METHOD'] == 'GET') {
+
+	RequireAuthentication();
+
 	$error_message = getErrorMessage();
 	
 	$page_contents = <<<EOD
@@ -84,6 +87,9 @@ EOD;
  *	
  */
 if ($op == 'changepass' && $_SERVER['REQUEST_METHOD'] == 'POST') {
+
+	RequireAuthentication();
+
 	$query = "SELECT value FROM settings WHERE setting = 'password';";
 	$value = DB_Query($query)->fetch_object()->value;
 	if ( $value != md5(trim($_POST['oldpass'])) ) {
@@ -104,6 +110,8 @@ if ($op == 'changepass' && $_SERVER['REQUEST_METHOD'] == 'POST') {
  *	
  */
 if ($op == 'changepassaccept') {
+	RequireAuthentication();
+
 	$page_contents = <<<EOD
 	  <div class="m">Password change accepted</div>
 	  <input type="button" value="OK" onClick="window.location='.';" autofocus />
@@ -115,6 +123,7 @@ EOD;
  *	
  */
 if ($op == 'setpass' && $_SERVER['REQUEST_METHOD'] == 'POST') {
+
 	$query = "SELECT value FROM settings WHERE setting = 'password';";
 	$result = DB_Query($query);
 	if ($result->num_rows > 0) {

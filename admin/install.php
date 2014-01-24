@@ -2,7 +2,6 @@
 
 	require_once '../config.php';
 	require_once ('../includes/db.inc');
-	require_once ('../includes/websnapr.inc');
 	
     $result = DB_Query("SELECT * FROM settings WHERE setting = 'version';");
 

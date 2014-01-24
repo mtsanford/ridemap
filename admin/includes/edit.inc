@@ -2,9 +2,11 @@
 
 if ($op == 'edit' && $_SERVER['REQUEST_METHOD'] == 'GET') {
 
+	RequireAuthentication();
+
 	$label = "";
 	$caption = "";
-	$wsinfo = "";
+	$google_maps_key_string = (strlen($CONFIG['GOOGLEMAPS_API_KEY']) == 0) ? "" : ("key=" . $CONFIG['GOOGLEMAPS_API_KEY'] . "&");
 	
 	if (empty($_GET['id']) ||  $_GET['id'] == 'new') {
 		$result = DB_Query("SELECT MAX(ID) AS max_route_id FROM routes");
@@ -15,17 +17,13 @@ if ($op == 'edit' && $_SERVER['REQUEST_METHOD'] == 'GET') {
 		}
 	}
 
-	if (!empty($WEBSNAPR_API_KEY)) {
-		$wsinfo = "or type 'websnapr' to use websnaper on the link url.";
-	}
-
 	$html = <<<EOD
 	<!DOCTYPE html>
 	<html>
 		<head>
 			<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
 			<title>Ridemap - Add/Edit a Route</title>
-			<script src="//maps.googleapis.com/maps/api/js?libraries=geometry&sensor=false" type="text/javascript"></script>
+			<script src="//maps.googleapis.com/maps/api/js?{$google_maps_key_string}libraries=geometry&sensor=false" type="text/javascript"></script>
 			<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 			<script src="js/jquery.blockUI.js"></script>
 			<script src="js/edit.js" type="text/javascript"></script>
@@ -49,7 +47,7 @@ if ($op == 'edit' && $_SERVER['REQUEST_METHOD'] == 'GET') {
 						
 						<div class="rm_admin_label">Picture URL: </div>
 						<input type="text" name="picture_url" maxlength="255" value="" id="picture_url"></input>
-						<div class="rm_small">(optional) Picture to display in the info popup balloon for the route {$wsinfo}</div>
+						<div class="rm_small">(optional) Picture to display in the info popup balloon for the route</div>
 						
 						<div class="rm_admin_label">Description:</div>
 						<textarea rows="3" cols="32" name="description" id="description"></textarea>

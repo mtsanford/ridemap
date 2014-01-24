@@ -224,7 +224,7 @@ RouteEdit = {
 		
 		var url_match = /\b(?:(?:https?|ftp):\/\/|www\.)[-a-z0-9+&@#\/%?=~_|!:,.;]*[-a-z0-9+&@#\/%=~_|]/i
 		var picture_url = $('#picture_url').val().trim();
-		if (picture_url.length > 0 && !picture_url.match(url_match) && picture_url != "websnapr") {
+		if (picture_url.length > 0 && !picture_url.match(url_match)) {
 			alert("Invalid picture URL");
 			return false;
 		}
