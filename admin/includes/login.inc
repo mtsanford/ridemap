@@ -26,7 +26,7 @@
 	 * Install specific stuff.  Need to connect to database. 
 	 */
 	require_once 'config.php';
-	require_once ('includes/db.inc');
+	require_once ('../includes/db.inc');
 
 	/*
 	 * end install specific stuff 

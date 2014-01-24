@@ -7,16 +7,16 @@ body, html {
 
 input, button, textarea {
 	display: block;
-	font-size:1em;
+	font-size:0.9em;
 	width:100%;
-	padding:0.1em;
+	padding:0.2em;
 	box-sizing: border-box;
 	-moz-box-sizing: border-box;
 }
 
 input[type="button"] {
-	color: #FFF;
-	background-color: #666;
+	color: #000;
+	background-color: #FFF;
 	border-radius: 0.5em;
 	margin-top: 0.5em;
 	padding: 0.2em 0em;
@@ -26,7 +26,7 @@ div#control-panel {
 	float: left;
 	width: 320px;
 	height: 100%;
-	background-color: #CCD;
+	background-color: #CCC;
 }
 
 #control-panel-inner {
@@ -60,55 +60,35 @@ div#control-panel {
 	border-left: 1px solid gray;
 }
 
-
-#rm_buttonblock {
-	margin: 8px;
+div#control-panel a {
+	font-size:
 }
-
-#rm_admin_buttonblock {
-	margin-top:1.5em;
-	font-size: 1.5em;
-}
-
-.rm_admin_label {
-	margin-top:0.5em;
-}
-
-#rm_tags {
-padding:0px;
-margin:4px;
-font-size:x-small;
-}
-
-#rm_edit {
-color: blue;
-padding:5px;
-}
-
-#rm_edit:hover {
-color: red;
-padding:5px;
-}
-
-#rm_delete{
-color: blue;
-padding:5px;
-}
-
-#rm_delete:hover {
-color: red;
-padding:5px;
-}
-
-#instructions {
-padding:5px;
-font-size:small;
+div#control-panel a,
+div#control-panel a:link,
+div#control-panel a:visited,
+div#control-panel a:hover {
+	text-decoration:none;
+	border-style:none !important;
+	color:#000088;
+	font-size: 1.2em;
+	margin-right: 1em;
+	cursor: pointer;
 }
 
 .rm_small {
-font-size:x-small;
-margin-bottom:6px;
+	font-size: 0.7em;
 }
+
+.rm_admin_label {
+	margin-top: 0.5em;
+}
+
+.rm_adminpanel {
+}
+
+/* 
+ * Route info window specific to admin page 
+ */
 
 .rm_adminpanel {
 	margin-top: 1em;
@@ -131,5 +111,6 @@ margin-bottom:6px;
 	margin-top: 1em;
 	font-size: 1.3em;
 	margin: 0em 1em;
+	cursor: pointer;
 }
 

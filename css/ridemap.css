@@ -3,20 +3,17 @@ html, body, #map-canvas {
 	margin: 0; 
 }
 
-.rm_tooltip {
-	background-color: #eeeeee;
-	font-weight: bold;
-	border: 2px #ababab solid;
-	padding: .5em;
-}
-
 .rm_infodiv {
 	width: 240px;
 	text-align:center;
 }
 
-.rm_picture {
-	border:0;
+.rm_viewpanel {
+	text-align:center;
+}
+
+.rm_picture img {
+	border: 0px;
 	width: 240px;
 }
 
@@ -41,10 +38,6 @@ html, body, #map-canvas {
 	color:#CC9900;
 }
 
-.rm_img {
-	border:0;
-	text-align:center
-}
 .rm_mag {
 	padding:0.5em;
 }

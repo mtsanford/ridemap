@@ -39,7 +39,7 @@ RouteEdit = {
 		} else {
 			RouteEdit.setState(RouteEdit.State.STATE_DEAD_LINE);
 			$.ajax({
-				url: "getroutes.php?fields=full&q=" + RouteEdit.id,
+				url: "../getroutes.php?fields=full&q=" + RouteEdit.id,
 				dataType: 'json',
 				success: RouteEdit.loadRoute
 			});
@@ -223,7 +223,7 @@ RouteEdit = {
 		}
 		
 		var url_match = /\b(?:(?:https?|ftp):\/\/|www\.)[-a-z0-9+&@#\/%?=~_|!:,.;]*[-a-z0-9+&@#\/%=~_|]/i
-		var picture_url = $('#link_url').val().trim();
+		var picture_url = $('#picture_url').val().trim();
 		if (picture_url.length > 0 && !picture_url.match(url_match) && picture_url != "websnapr") {
 			alert("Invalid picture URL");
 			return false;

@@ -3,7 +3,7 @@
 // can be specified using opts, or if missing URL query parameters
 // will be used.
 var Ridemap = function(id, opts) {
-	this.opts = opts || Ridemap.utils.getUrlParameters(['q', 'label', 'tag', 'region', 'wheelzoom']);
+	this.opts = opts || Ridemap.utils.getUrlParameters(['q', 'label', 'tag', 'region', 'wheelzoom', 'load']);
 	this.admin = this.opts.mode && (this.opts.mode == 'admin');
 	this.routes = [];
 	this.activeRoute = 0;
@@ -60,6 +60,10 @@ Ridemap.prototype = {
 			}
 			this.fetchRoutes(params, this.onZoomRoutesFetched);
 		}
+		
+		if (this.opts.load) {
+			this.zoomToRoute(parseInt(this.opts.load));
+		}
 	},
 
 	// Set up a click event listener for a marker
@@ -72,24 +76,20 @@ Ridemap.prototype = {
 				if (map.activeRoute) {
 					map.routes[map.activeRoute].infoWindow.close();
 				}
+				map.activeRoute = routeID;
+
 				if (!Ridemap.utils.ctrlDown) {
 					map.routes.forEach(function(_route) {
 						if (_route.ID != routeID && _route.line) {
 							_route.line.setVisible(false);
 						}
-					}, map);
-				}
-				map.activeRoute = routeID;
-				
-				if (route.status == Ridemap.Status.NOT_LOADED) {
-					route.status == Ridemap.Status.LOADING;
-					map.fetchRoutes({q: routeID, fields: 'full'}, function(data) {
-						map.setFullRoute(route, data['routes'][0]);
-						route.line.setVisible(true);
 					});
-				} else if (route.status == Ridemap.Status.LOADED) {
-					route.line.setVisible(true);
 				}
+				
+				map.loadRoute(routeID, function() {
+					route.line.setVisible(true);
+				});
+
 			}
 		});
 	},
@@ -109,8 +109,10 @@ Ridemap.prototype = {
 	},
 
 	// From data fetched from getroutes.php, fill in all the data
-	// in the route so that it is fully loaded.
+	// in the route so that it is fully loaded.  Also set up
+	// the routes infoWindow, and set up any needed event handlers.
 	setFullRoute : function(route, data) {
+		var map = this;
 		if (route.status < Ridemap.Status.LOADED) {
 			route.status = Ridemap.Status.LOADED;
 			$.extend(route, data);
@@ -124,46 +126,76 @@ Ridemap.prototype = {
 				visible: false,
 				map: this.map
 			});
+			
 			route.infoWindow.setContent(this.makeInfoHTML(route));
-			if (this.admin) {
-				var map = this;
-				google.maps.event.addDomListener(document.getElementById("rm_edit-" + route.ID), 'click', function() {
-					window.location = "?id=" + map.routes[map.activeRoute].ID;
-				});
-				google.maps.event.addDomListener(document.getElementById("rm_delete-" + route.ID), 'click', function() {	
-					if (map.activeRoute < 0) return;
-					//this.map.closeInfoWindow();
-					if (!confirm("Delete route?")) return;
-					//ajaxSend("delete.php?id=" + this.routes[this.activeRoute].ID, this, function();
-					//!what happenens if user click marker while we're waiting?
-				});
-			}
+			
+			google.maps.event.addListener(route.infoWindow, 'domready', function() {
+				if (map.admin) {
+					$('#rm_edit-' + route.ID).click( function(event) {
+						window.location = "?op=edit&id=" + map.routes[map.activeRoute].ID;
+					});
+					$('#rm_delete-' + route.ID).click( function(event) {
+						if (map.activeRoute < 0) return;
+						//this.map.closeInfoWindow();
+						if (!confirm("Delete route?")) return;
+						//ajaxSend("delete.php?id=" + this.routes[this.activeRoute].ID, this, function();
+						//!what happenens if user click marker while we're waiting?
+					});
+				} else {
+					$('#rm_mag-' + route.ID).click( function(event) {
+						map.zoomToRoute(route.ID);
+					});
+				}
+			});
 		}
 	},
 	
-	zoomToRoute: function(id) {
+	zoomToRoute: function(routeID) {
+		var route = this.routes[routeID];
+
+		if (this.activeRoute && this.activeRoute != routeID) {
+			this.routes[this.activeRoute].infoWindow.close();
+		}
+		
+		route.infoWindow.open(this.map, route.marker);
+		this.activeRoute = routeID;
+
+		this.loadRoute(routeID, function() {
+			route.line.setVisible(true);
+			this.map.fitBounds(new google.maps.LatLngBounds(
+				new google.maps.LatLng(route.bound_south, route.bound_west),
+				new google.maps.LatLng(route.bound_north, route.bound_east)
+			));
+		});
 	},
 	
 	makeInfoHTML : function(route) {
-		var html = 
-			'<div class="rm_infodiv"><div class="rm_caption">CAPTION</div><div class="rm_picture">'
-			+ '<a href="LINK_URL" target="_blank"><img class="rm_img" src="PICTURE_URL" width="240px" />'
-			+ '</a></div><div class="rm_description">DESCRIPTION</div>'
-	
+		var extra;
 		if (this.opts.mode == 'admin') {
-			html = html + '</div><div class="rm_adminpanel"><div>Label: LABEL</div>'
-			            + '<div>Tags: TAGS</div><div class="admin-links">'
-			            + '<a id="rm_edit-ROUTEID" class="admin-link" ref="#">edit</a>'
-						+ '<a id="rm_delete-ROUTEID" class="admin-link" href="#">delete</a></div></div>';
+			extra = '<div class="rm_adminpanel">'
+			      + '  <div>Label: LABEL</div>'
+			      + '  <div>Tags: TAGS</div>'
+				  + '  <div class="admin-links">'
+			      + '    <a id="rm_edit-ROUTEID" class="admin-link" ref="#">edit</a>'
+			      + '    <a id="rm_delete-ROUTEID" class="admin-link" href="#">delete</a>'
+				  + '  </div>'
+				  + '</div>';
 		} else {
-			html = html + '<img class="rm_mag" src="img/mg.png" /></div>';
+			extra = '<div class="rm_viewpanel"><img id="rm_mag-ROUTEID" class="rm_mag" src="img/mg.png" /></div>';
 		}
+
+		var html = 
+		      '<div class="rm_infodiv">'
+			+ '  <div class="rm_caption">CAPTION</div>'
+			+ '  <div class="rm_picture"><a href="LINK_URL" target="_blank"><img src="PICTURE_URL" /></a></div>'
+			+ '  <div class="rm_description">DESCRIPTION</div>'
+			+ '</div>'
+			+  extra;
+	
 			
 		html = html.replace(/CAPTION/g, route['caption']);
 		html = html.replace(/LINK_URL/g, route['link_url']);
 		html = html.replace(/PICTURE_URL/g, route['picture_url']);
-		html = html.replace(/PICTURE_WIDTH/g, route['picture_width']);
-		html = html.replace(/PICTURE_HEIGHT/g, route['picture_height']);
 		html = html.replace(/DESCRIPTION/g, route['description']);
 		html = html.replace(/LABEL/g, route['label']);
 		html = html.replace(/TAGS/g, route['tags']);
@@ -172,8 +204,23 @@ Ridemap.prototype = {
 		return html;
 	},
 	
+	// ensure a single route is loaded, then call the callback
+	// callback may be called synchronously
+	loadRoute: function(routeID, callback) {
+		var route = this.routes[routeID];
+		if (route.status == Ridemap.Status.NOT_LOADED) {
+			route.status == Ridemap.Status.LOADING;
+			this.fetchRoutes({q: routeID, fields: 'full'}, function(data) {
+				this.setFullRoute(route, data['routes'][0]);
+				callback.call(this);
+			});
+		} else if (route.status == Ridemap.Status.LOADED) {
+			callback.call(this);
+		}
+	},
+	
 	fetchRoutes: function(params, success) {
-		var url = 'getroutes.php' + ((Object.keys(params).length > 0) ? ('?' + $.param(params)) : '');
+		var url = (this.admin ? '../getroutes.php' : 'getroutes.php') + ((Object.keys(params).length > 0) ? ('?' + $.param(params)) : '');
 		$.ajax({
 			url: url,
 			context: this,

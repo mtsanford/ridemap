@@ -1,8 +1,8 @@
 <?php
 
-	require_once 'config.php';
-	require_once ('includes/db.inc');
-	require_once ('includes/websnapr.inc');
+	require_once '../config.php';
+	require_once ('../includes/db.inc');
+	require_once ('../includes/websnapr.inc');
 	
     $result = DB_Query("SELECT * FROM settings WHERE setting = 'version';");
 
@@ -66,5 +66,5 @@ EOD;
     $result = DB_Query($query);
 
 	echo "<h2>Install Succesful</h2><br /><br />";
-	echo"<h3>Please click to go to <a href='admin.php'>admin</a></h3>";
+	echo"<h3>Please click to go to <a href='.'>admin page</a></h3>";
 

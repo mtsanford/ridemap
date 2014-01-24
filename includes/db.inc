@@ -10,8 +10,7 @@ function DB_Connect()
 
 	$db = mysqli_connect($db_host, $db_username, $db_password, $db_database);
 	if (!$db) {
-		die('Connect Error (' . mysqli_connect_errno() . ') '
-				. mysqli_connect_error());
+		die('Connect Error (errno=' . mysqli_connect_errno() . '): ' . mysqli_connect_error());
 	}
 	return $db;
 }
@@ -20,8 +19,7 @@ function DB_Query($query) {
 	$db = DB_Connect();
 	$result = mysqli_query($db, $query);
 	if ($result == FALSE) {
-		die('Error(' . mysqli_connect_errno() . ') '
-				. mysqli_connect_error() . ". Full query: [$query]");
+		die("Error: " . mysqli_error($db) . "   Full query: [$query]");
 	}
 	return $result;
 }

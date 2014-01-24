@@ -6,5 +6,4 @@
 *
 */
 
-$page = file_get_contents(dirname(__FILE__) . '/index.html');
-echo $page;
+echo file_get_contents('index.html');

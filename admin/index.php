@@ -18,19 +18,20 @@
  *
  */	 
 
-require_once 'config.php';
-require_once ('includes/db.inc');
-require_once ('includes/websnapr.inc');
+require_once '../config.php';
+require_once ('../includes/db.inc');
+require_once ('../includes/websnapr.inc');
 
 $RM_redirect_to_login = true;
 require_once ('includes/checkpermission.inc');
 
+$op_query_string = empty($_GET['op']) ? 'admin' : $_GET['op'];
+$ops = explode('/', $op_query_string);
+$op = $ops[0];
 
-if (isset($_GET['id'])) {
-	include_once("includes/edit.inc");
-} else {
-	include_once("includes/admin.inc");
-}
-
-echo $html;
+//include_once("includes/login.inc");
+include_once("includes/admin.inc");
+include_once("includes/edit.inc");
+include_once("includes/edit_post.inc");
+//include_once("includes/delete_post.inc");
 
