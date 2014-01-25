@@ -61,7 +61,7 @@ if ($op == 'admin') {
 				<div id="control-panel-inner">
 					<p>Click on a marker to view EDIT and DELETE options for a route</p>
 					<div style="margin:8px;"><input type="button" onclick="Admin.newRoute();" value="New Route"/></div>
-					<div style="margin:8px;"><input type="button" onclick="window.location='tag.php';" value="Tag Routes"/></div>
+					<div style="margin:8px;"><input type="button" onclick="window.location='?op=tag';" value="Tag Routes"/></div>
 					{$logout_html}
 				</div>
 			</div> <!-- control-panel -->

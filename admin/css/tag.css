@@ -1,0 +1,20 @@
+table {
+	border-style:solid;
+	border-width:1px;
+}
+td, th {
+	text-align:left;
+	border-style:solid;
+	border-width:1px;
+	padding-left:8px;
+	padding-right:8px;
+}
+fieldset {
+	background-color:#CCCCCC;
+}
+fieldset div {
+	margin:6px;
+}
+thead {
+	overflow:auto;
+}

@@ -20,15 +20,15 @@ CREATE TABLE IF NOT EXISTS `routes` (
   `picture_url` text,
   `link_url` text,
   `date_added` datetime default NULL,
-  `encoded_polyline` text,
-  `marker_pos` text,
+  `encoded_polyline` MEDIUMTEXT,
+  `marker_pos` TINYTEXT,
   `color` varchar(32),
   `bound_west` float default '-180',
   `bound_east` float default '180',
   `bound_north` float default '90',
   `bound_south` float default '-90',
   PRIMARY KEY  (`ID`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 EOD;
 		
     $result = DB_Query($query);
@@ -36,9 +36,9 @@ EOD;
 	$query = <<<EOD
 CREATE TABLE IF NOT EXISTS `cache` (
   `query` varchar(128) NOT NULL default '',
-  `json` text,
+  `json` MEDIUMTEXT,
   PRIMARY KEY  (`query`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 EOD;
 
     $result = DB_Query($query);
@@ -60,7 +60,7 @@ CREATE TABLE IF NOT EXISTS `tags` (
   `tag` char(32) NOT NULL,
   PRIMARY KEY  (`ID`,`tag`),
   KEY `tag`(`tag`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 EOD;
 
     $result = DB_Query($query);

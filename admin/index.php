@@ -25,6 +25,13 @@ if (!DB_Installed()) {
 	die("Not installed");
 }
 
+require '../includes/Mustache/Autoloader.php';
+Mustache_Autoloader::register();
+
+$M = new Mustache_Engine(array(
+    'loader' => new Mustache_Loader_FilesystemLoader(dirname(__FILE__) . '/views'),
+));
+
 session_start();
 
 $op_query_string = empty($_GET['op']) ? 'admin' : $_GET['op'];
@@ -37,4 +44,7 @@ include_once("includes/admin.inc");
 include_once("includes/edit.inc");
 include_once("includes/edit_post.inc");
 include_once("includes/delete_post.inc");
+include_once("includes/tag.inc");
+include_once("includes/phpinfo.inc");
+include_once("includes/hello.inc");
 
