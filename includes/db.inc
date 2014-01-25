@@ -1,6 +1,8 @@
 <?php
 
-function DB_Connect()
+// If $error_string is set, don't die, but set the string and
+// return false instead.
+function DB_Connect(&$error_string = null)
 {
 	global $CONFIG;
 	static $db = null;
@@ -11,16 +13,31 @@ function DB_Connect()
 
 	$db = mysqli_connect($CONFIG['DB_HOST'], $CONFIG['DB_USERNAME'], $CONFIG['DB_PASSWORD'], $CONFIG['DB_DATABASE']);
 	if (!$db) {
-		die('Connect Error (errno=' . mysqli_connect_errno() . '): ' . mysqli_connect_error());
+		$err = 'Connect Error (errno=' . mysqli_connect_errno() . '): ' . mysqli_connect_error();
+		if ($error_string == null) {
+			die($err);
+		} else {
+			$error_string = $err;
+		}
 	}
 	return $db;
 }
 
-function DB_Query($query) {
-	$db = DB_Connect();
+// If $error_string is set, don't die, but set the string and
+// return false instead.
+function DB_Query($query, &$error_string = null) {
+	$db = DB_Connect($error_string);
+	if (!$db) {
+		return false;
+	}
 	$result = mysqli_query($db, $query);
 	if ($result == FALSE) {
-		die("Error: " . mysqli_error($db) . "   Full query: [$query]");
+		$err = "Error: " . mysqli_error($db) . "   Full query: [$query]";
+		if ($error_string == null) {
+			die($err);
+		} else {
+			$error_string = $err;
+		}
 	}
 	return $result;
 }

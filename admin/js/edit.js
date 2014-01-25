@@ -176,9 +176,8 @@ RouteEdit = {
 
 	clear: function() {
 	
-		if (      RouteEdit.state == RouteEdit.State.STATE_HAVE_DESTINATION 
-		       || RouteEdit.state == RouteEdit.State.STATE_DEAD_LINE
-		       || RouteEdit.state == RouteEdit.State.STATE_DEAD_LINE) {
+		if (RouteEdit.state == RouteEdit.State.STATE_HAVE_DESTINATION 
+		    || RouteEdit.state == RouteEdit.State.STATE_DEAD_LINE) {
 			   
 			RouteEdit.directionsDisplay.setMap(null);
 			
@@ -193,6 +192,8 @@ RouteEdit = {
 			}
 
 			RouteEdit.setState(RouteEdit.State.STATE_FRESH);
+			
+			$('#encoded_polyline').val('');
 
 		}
 	},
@@ -231,6 +232,12 @@ RouteEdit = {
 		var link_url = $('#link_url').val().trim();
 		if (link_url.length > 0 && !link_url.match(url_match)) {
 			alert("Invalid link URL");
+			return false;
+		}
+		
+		if (RouteEdit.state != RouteEdit.State.STATE_HAVE_DESTINATION 
+		    && RouteEdit.state != RouteEdit.State.STATE_DEAD_LINE ) {
+			alert("You must create a map route");
 			return false;
 		}
 

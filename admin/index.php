@@ -36,5 +36,5 @@ include_once("includes/login.inc");
 include_once("includes/admin.inc");
 include_once("includes/edit.inc");
 include_once("includes/edit_post.inc");
-//include_once("includes/delete_post.inc");
+include_once("includes/delete_post.inc");
 

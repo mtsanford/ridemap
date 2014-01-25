@@ -30,6 +30,7 @@ if ($op == 'admin') {
 		<title>Ridemap - Admin</title>
 		<script src="//maps.googleapis.com/maps/api/js?{$google_maps_key_string}libraries=geometry&sensor=false" type="text/javascript"></script>
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+		<script src="js/jquery.blockUI.js"></script>
 		<script src="../js/ridemap.js" type="text/javascript"></script>
 		<link href="../css/ridemap.css" rel="stylesheet" type="text/css"/>
 		<link href="css/ridemapadmin.css" rel="stylesheet" type="text/css"/>

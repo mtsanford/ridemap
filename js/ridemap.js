@@ -146,11 +146,17 @@ Ridemap.prototype = {
 						window.location = "?op=edit&id=" + map.routes[map.activeRoute].ID;
 					});
 					$('#rm_delete-' + route.ID).click( function(event) {
-						if (map.activeRoute < 0) return;
-						//this.map.closeInfoWindow();
 						if (!confirm("Delete route?")) return;
-						//ajaxSend("delete.php?id=" + this.routes[this.activeRoute].ID, this, function();
-						//!what happenens if user click marker while we're waiting?
+						$.blockUI({ message: '<h1>Just a moment...</h1>' });
+						$.ajax({
+							url: '?op=delete',
+							type: 'POST',
+							data: 'id=' + route.ID,
+							success: function() {
+								$.unblockUI();
+								map.deleteRoute(route.ID);
+							}
+						});
 					});
 				} else {
 					$('#rm_mag-' + route.ID).click( function(event) {
@@ -258,6 +264,25 @@ Ridemap.prototype = {
 			dataType: 'json',
 			success: success
 		});
+	},
+	
+	deleteRoute: function(routeID) {
+		var route = this.routes[routeID];
+		if (route) {
+			route.infoWindow.close();
+			if (route.line) {
+				route.line.setMap(null);
+				delete route.line;
+			}
+			if (route.marker) {
+				route.marker.setMap(null);
+				delete route.marker;
+			}
+			delete this.routes[route.ID];
+		}
+		if (this.activeRoute == routeID) {
+			this.activeRoute = null;
+		}
 	}
 
 };
