@@ -67,7 +67,7 @@
 
 	function onNewTagSubmit(event) {
 		
-		// Enforce only english letter & numbers in tags
+		// Enforce allowable characters
 		var str = $('#newtag').val().trim().replace(/[^A-Za-z0-9-_\040]/g, '');
 		$('#newtag').val(str).blur();
 		
