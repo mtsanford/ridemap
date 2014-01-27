@@ -93,7 +93,7 @@
 	$tags_array = Array();
 	$tag_strings = preg_split('/,/', $tags, 0, PREG_SPLIT_NO_EMPTY);
 	foreach ($tag_strings as $tag) {
-		$tag = strtolower(preg_replace('/[^\040\da-z]/i', '', trim($tag)));
+		$tag = preg_replace("[^A-Za-z0-9-_\040]", "", trim($tag));
 		if (strlen($tag) > 0) {
 			$tags_array[] = $tag;
 		}

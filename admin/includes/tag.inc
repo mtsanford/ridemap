@@ -9,7 +9,7 @@ if ($op == 'tag_getroutes' && $_SERVER['REQUEST_METHOD'] == 'GET') {
 
 	RequireAuthentication();
 
-	$tag = empty($_GET['tag']) ? "" : strtolower(preg_replace("[^A-Za-z0-9\040-]", "", trim($_GET['tag'])));
+	$tag = empty($_GET['tag']) ? "" : preg_replace("[^A-Za-z0-9-_\040]", "", trim($_GET['tag']));
 
 	$table_data = array(
 		'tag' => $tag,
@@ -51,7 +51,7 @@ if ($op == 'tag' && $_SERVER['REQUEST_METHOD'] == 'POST') {
 	
 	$values = array();
 	$ids = explode(',', $_POST['ids']);
-	$tag = strtolower(preg_replace("[^A-Za-z0-9-_]", "", trim($_POST['tag'])));
+	$tag = preg_replace("[^A-Za-z0-9-_\040]", "", trim($_POST['tag']));
 
 	$out .= $tag . "\n";
 	$out .= $_POST['ids'] . "\n";
@@ -100,3 +100,4 @@ if ($op == 'tag' && $_SERVER['REQUEST_METHOD'] == 'GET') {
 	));
 
 }
+
