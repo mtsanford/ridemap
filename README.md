@@ -14,13 +14,13 @@ being done, so if it's not older that 2008 vintage you should be fine.
 
 ##Sample screen shots:
 
-A map:
+###A map:
 ![Admin page](img/map-sample.jpg)
 
-Administration interface:
+###Administration interface:
 ![Admin page](img/admin-sample.jpg)
 
-Tagger interface:
+###Tagger interface:
 ![Admin page](img/tagger-sample.jpg)
 
 Creator: Mark T. Sanford (marktsanford@gmail.com)
