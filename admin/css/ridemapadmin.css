@@ -14,7 +14,7 @@ input, button, textarea {
 	-moz-box-sizing: border-box;
 }
 
-input[type="button"] {
+input[type="button"], input[type="submit"] {
 	color: #000;
 	background-color: #FFF;
 	border-radius: 0.5em;

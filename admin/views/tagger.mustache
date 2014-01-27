@@ -16,7 +16,7 @@
 				<fieldset>
 					<legend>Choose Tag</legend>
 					<div>
-						<span>Tag:&nbsp;</span>
+						<span>Tag:</span>
 						<select id="tagselect" name="tagselect">
 							<option value="">-- Select A Tag ---</option>
 							{{# tag_options }}
@@ -26,8 +26,10 @@
 					</div>
 					<div>Or, make a new tag:</div>
 					<div>
-						<input type="text" name="newtag" maxlength="32" value="" id="newtag"/>
-						<input type="submit" id="newtagbtn" value="New" />
+						<form id="newtagform">
+							<input type="text" name="newtag" maxlength="48" value="" id="newtag" autocomplete="off"/>
+							<input type="submit" value="New" />
+						</form>
 					</div>
 				</fieldset>
 				<input type="button" id="submitbtn" value="Save Tag Data" />
@@ -36,7 +38,7 @@
 			</div>
 		</div>
 		<div id="table-panel">
-			<div id="fakeheader">
+			<div id="tableheader">
 				<div id="tagname"></div>
 				<div>
 					<span id="cb_header"></span><span id="label_header">Label</span><span id="caption_header">Caption</span>
@@ -49,11 +51,6 @@
     
 	<!-- Mustache template for route/tag table contents -->
 	<!-- Have to change delimiters temporarity or mustache tags will get stripped!! -->	
-	<!--
-				<thead>
-					<tr><th class="cb_head">{{ tag }}</th><th class="label_head">label</th><th class="caption_head">caption</th></tr>
-				</thead>
-	-->
 	<!-- Remember, this file is read as a template! -->	
 	<script id="route_table_template" type="text/template">
 		{{=<% %>=}}

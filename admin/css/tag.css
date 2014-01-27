@@ -13,6 +13,10 @@ fieldset div {
 	margin:6px;
 }
 
+fieldset input {
+	margin: 5px 0px;
+}
+
 #admin {
 	margin-top: 2em;
 }
@@ -29,7 +33,7 @@ fieldset div {
 	margin-left: 320px;
 }
 
-#fakeheader {
+#tableheader {
 	position: fixed;
 	top: 0px;
 	height: 80px;
@@ -43,7 +47,7 @@ fieldset div {
 	font-size: 36px;
 }
 
-#fakeheader span {
+#tableheader span {
 	display: inline-block;
 	font-weight: bold;
 	text-decoration: underline;
@@ -51,7 +55,7 @@ fieldset div {
 }
 
 #tagtable {
-	margin-top: 80px;
+	margin-top: 84px;
 	padding-left: 10px;
 	width: 655px;
 }
@@ -65,7 +69,7 @@ fieldset div {
 	background-color: #DDD;
 }
 
-#fakeheader span {
+#tableheader span {
 	padding-right: 5px;
 }
 

@@ -2,19 +2,17 @@
 	
 	var tag = '';
 	var dirty = false;
-	var	template;
+	var	rowTemplate;
 	
 	// alter UI to reflect dirty state
 	function setDirty(d) {
 		dirty = d;
-		$('#fakeheader').css('background-color', d ? '#FCC' : '#FFF');
-		$('#message').html("Changes not saved yet.");
+		$('#tableheader').css('background-color', d ? '#FCC' : '#FFF');
 		$("#submitbtn").css('visibility', dirty ? 'visible' : 'hidden');
 	}
 
 	// Load up tag data into table
 	function setTag(newtag) {
-
 		$.ajax({
 			url: '?op=tag_getroutes' + (newtag.length ? ('&tag=' + newtag) : ''),
 			dataType: 'json',
@@ -26,7 +24,7 @@
 					}
 				});
 				
-				$('#tagtable').html(Mustache.to_html(template, data));
+				$('#tagtable').html(Mustache.to_html(rowTemplate, data));
 				$('#tagname').text(newtag.length == 0 ? '< no tag selected >' : newtag);
 				setDirty(false);
 				$('#message').html("");
@@ -67,30 +65,26 @@
 		});
 	}
 
-	// Respond to tag selector
-	function onNewTag(str) {
-		if (str.length == 0) {
-			return;
-		}
+	function onNewTagSubmit(event) {
 		
-		var existingTag = false;
-		var str = $('#newtag').val().replace(/[^A-Za-z0-9]/g,'');
+		// Enforce only english letter & numbers in tags
+		var str = $('#newtag').val().replace(/[^A-Za-z0-9-_]/g, '');
+		$('#newtag').val(str).blur();
 		
-		$('#newtag').val(str);
-		$("#tagselect option").each(function() {
-			if (str == $(this).val()) {
-				existingTag = true;
-			}
-		});
-		if (!existingTag) {
+		// if the tag is not already in our options, add it
+		if ($("#tagselect option[value='" + str + "']").length == 0) {
 			$('#tagselect').append($('<option>', {
 				value: str,
 				text: str
 			}));
 		}
+		
 		$("#tagselect").val(str);
+		
 		setTag(str);
-	}
+		
+		event.preventDefault(); // prevent form submission
+}
 	
 
 	function onTagSelectorChanged() {
@@ -99,26 +93,31 @@
 		setTag($(this).val());
 	}
 	
+	function onTagsSaveSubmit() {
+		saveTags();
+		return false; // prevent form submission
+	}
+	
+	function onRouteCheckboxClick(event) {
+		if (tag.length) {
+			setDirty(true);
+			$('#message').html("Changes not saved yet.");
+		} else {
+			event.preventDefault();
+		}
+	}
+	
 	$( document ).ready(function() {
-		template = $('#route_table_template').html();
+		rowTemplate = $('#route_table_template').html();
+		
 		$('#tagselect').change(onTagSelectorChanged);
-		$('#newtagbtn').click(onNewTag);
-		$('#submitbtn').click(function() {
-			saveTags();
-			return false;
-		});
-		$(document.body).on('click', '#tagtable input[type="checkbox"]', function(event) {
-			if (tag.length) {
-				setDirty(true);
-			} else {
-				event.preventDefault();
-			}
-		});
-		$('#updatebtn').click(function() {
-			saveTags();
-			return false;
-		});
-		setDirty(false);
+		$('#submitbtn').click(onTagsSaveSubmit);
+		$('#newtagform').submit(onNewTagSubmit);		
+		
+		// Set up event handler for all future checkboxes
+		$(document.body).on('click', '#tagtable input[type="checkbox"]', onRouteCheckboxClick);
+		
+
 		setTag(tag);
 	});
 

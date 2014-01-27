@@ -31,17 +31,11 @@ if ($op == 'tag_getroutes' && $_SERVER['REQUEST_METHOD'] == 'GET') {
 	
 	$result = DB_Query($query);
 
-	for ( $i=0; $i < $result->num_rows; $i++ )
-	{
+	for ( $i=0; $i < $result->num_rows; $i++ ) {
 		$table_data['routes'][] = mysqli_fetch_assoc($result);
 	}
 	
-	$json = json_encode($table_data);
-	echo $json;
-	
-	// print '<pre>';
-	// print_r(json_decode($json));
-	// print '</pre>';
+	echo json_encode($table_data);
 
 }
 
@@ -57,7 +51,7 @@ if ($op == 'tag' && $_SERVER['REQUEST_METHOD'] == 'POST') {
 	
 	$values = array();
 	$ids = explode(',', $_POST['ids']);
-	$tag = strtolower(preg_replace("[^A-Za-z0-9\040-]", "", trim($_POST['tag'])));
+	$tag = strtolower(preg_replace("[^A-Za-z0-9-_]", "", trim($_POST['tag'])));
 
 	$out .= $tag . "\n";
 	$out .= $_POST['ids'] . "\n";
