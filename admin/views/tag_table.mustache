@@ -1,0 +1,14 @@
+<table id='tagtable'>
+	<thead>
+		<tr><th class="cb">{{ tag }}</th><th>label</th><th>caption</th></tr>
+	</thead>
+	<tbody>
+		{{# routes }}
+			<tr>
+				<td class="cb"><input type="checkbox" name="{{ ID }}" {{# tagged }}checked{{/ tagged }} onclick="dirty(true);" /></td>
+				<td class="label">{{ label }}</td>
+				<td class="caption">{{ caption }}</td>
+			</tr>
+		{{/ routes }}
+	</tbody>
+</table>

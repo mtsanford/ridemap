@@ -10,37 +10,18 @@
  */
 if ($op == 'login' && $_SERVER['REQUEST_METHOD'] == 'GET') {
 
-	$error_message = getErrorMessage();
-
 	// If there is no password yet, prompt user for one
 	$query = "SELECT value FROM settings WHERE setting = 'password';";
 	$result = DB_Query( $query );
 	
-	if ($result->num_rows == 0) {
-		$page_contents = <<<EOD
-			<div class="m">Choose a Password</div>
-			<div class="err">{$error_message}</div>
-			<form name="pwdform" action="?op=setpass" method="post">
-				<div>New Password</div>
-				<input type="password" name="pass1" maxlength="24" autofocus />
-				<div>Again for confirmation</div>
-				<input type="password" name="pass2" maxlength="24" />
-				<input type="submit" value="submit" />
-			</form>
-EOD;
-	} else {
-		// otherwise ask user for password
-		$page_contents = <<<EOD
-			<div class="m">Enter Password</div>
-			<div class="err">{$error_message}</div>
-			<form action='?op=login' method="post">
-				<input type="password" name="pass" maxlength="24" autofocus />
-				<input type="submit" value="logon" />
-			</form>
-EOD;
-	}
+	$error_message = getErrorMessage();
 	
-	outputPage($page_contents);
+	echo $M->render('password_page', array(
+		'page_contents' => ($result->num_rows == 0)
+						   ? $M->render('password_choose', array('error_message' => $error_message))
+						   : $M->render('password_enter', array('error_message' => $error_message))
+	));
+
 }
 
 /*
@@ -65,22 +46,11 @@ if ($op == 'changepass' && $_SERVER['REQUEST_METHOD'] == 'GET') {
 	RequireAuthentication();
 
 	$error_message = getErrorMessage();
-	
-	$page_contents = <<<EOD
-		<div class="m">Change Password</div>
-		<div class="err">{$error_message}</div>
-		<form action="?op=changepass" method="post">
-			<div>Old Password</div>
-			<input type="password" name="oldpass" maxlength="24" autofocus />
-			<div>New Password</div>
-			<input type="password" name="pass1" maxlength="24" />
-			<div>New Password, again</div>
-			<input type="password" name="pass2" maxlength="24" />
-			<input type="submit" value="change" />
-		</form>
-EOD;
 
-	outputPage($page_contents);
+	echo $M->render('password_page', array(
+		'page_contents' => $M->render('password_change', array('error_message' => getErrorMessage()))
+	));
+
 }
 
 /*
@@ -112,11 +82,9 @@ if ($op == 'changepass' && $_SERVER['REQUEST_METHOD'] == 'POST') {
 if ($op == 'changepassaccept') {
 	RequireAuthentication();
 
-	$page_contents = <<<EOD
-	  <div class="m">Password change accepted</div>
-	  <input type="button" value="OK" onClick="window.location='.';" autofocus />
-EOD;
-	outputPage($page_contents);
+	echo $M->render('password_page', array(
+		'page_contents' => $M->render('password_change_accepted')
+	));
 }
 
 /*
@@ -151,33 +119,12 @@ if ($op == 'logout') {
 	unset( $_SESSION['admin'] );
 	header( "Location: ?op=login" );
 }
-	 
+
 
 /*
  *  Utility functions	
  */
-	 
-	 
-function outputPage($page_contents) {
-
-$page = <<<EOD
-<!DOCTYPE html>
-<html>
-	<head>
-		<link href="css/login.css" rel="stylesheet" type="text/css"/>
-	</head>
-	<body>
-		<div class="c">
-			{$page_contents}
-		</div>
-	</body>
-</html>
-EOD;
-
-	echo $page;
-}
-
-
+ 
 function getErrorMessage() {
 	$error_message = "";
 	if (!empty($_GET['error'])) {

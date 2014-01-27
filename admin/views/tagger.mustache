@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+		<title>Route Tagger</title>
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+		<script type="text/javascript" src="js/tagger.js"></script>
+		<script type="text/javascript" src="js/mustache.js"></script>
+		<link href="css/ridemapadmin.css" rel="stylesheet" type="text/css"/>
+		<link href="css/tag.css" rel="stylesheet" type="text/css"/>
+	</head>
+	<body>
+		<div id="control-panel">
+			<div id="control-panel-inner">
+				<h2>Route Tagger</h2>
+				<fieldset>
+					<legend>Choose Tag</legend>
+					<div>
+						<span>Tag:&nbsp;</span>
+						<select id="tagselect" name="tagselect">
+							<option value="">-- Select A Tag ---</option>
+							{{# tag_options }}
+							<option value="{{ name }}">{{ name }}</option>
+							{{/ tag_options }}
+						</select>
+					</div>
+					<div>Or, make a new tag:</div>
+					<div>
+						<input type="text" name="newtag" maxlength="32" value="" id="newtag"/>
+						<input type="submit" id="newtagbtn" value="New" />
+					</div>
+				</fieldset>
+				<input type="button" id="submitbtn" value="Save Tag Data" />
+				<div id="message">message</div>
+				<input id="admin" type="button" onclick="window.location='.'" value="Back to Admin Main" />
+			</div>
+		</div>
+		<div id="table-panel">
+			<div id="fakeheader">
+				<div id="tagname"></div>
+				<div>
+					<span id="cb_header"></span><span id="label_header">Label</span><span id="caption_header">Caption</span>
+				</div>
+			</div>
+			<div id="tagtable">
+			</div>		
+		</div>
+	</body>
+    
+	<!-- Mustache template for route/tag table contents -->
+	<!-- Have to change delimiters temporarity or mustache tags will get stripped!! -->	
+	<!--
+				<thead>
+					<tr><th class="cb_head">{{ tag }}</th><th class="label_head">label</th><th class="caption_head">caption</th></tr>
+				</thead>
+	-->
+	<!-- Remember, this file is read as a template! -->	
+	<script id="route_table_template" type="text/template">
+		{{=<% %>=}}
+			{{# routes }}
+				<div class="tagrow">
+					<span class="cb"><input type="checkbox" name="{{ ID }}" {{# checked }}checked{{/ checked }} /></span>
+					<span class="label">{{ label }}</span>
+					<span class="caption">{{ caption }}</span>
+				</div>
+			{{/ routes }}
+		<%={{ }}=%>
+	</script>	
+
+</html>
