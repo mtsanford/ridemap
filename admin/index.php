@@ -45,6 +45,4 @@ include_once("includes/edit.inc");
 include_once("includes/edit_post.inc");
 include_once("includes/delete_post.inc");
 include_once("includes/tag.inc");
-include_once("includes/phpinfo.inc");
-include_once("includes/hello.inc");
 

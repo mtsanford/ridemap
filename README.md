@@ -3,14 +3,14 @@
 ##Summary:
 
 Google Maps version 3 based database of road paths (polylines), with admin interface for editing and tagging paths.
-A marker is displayed for each path on a google map, and the full route, with additional information
-is shown in a google maps infoWindow when the marker is clicked on.   In the infoWindow is a user specified image
-that links to a user specified URL.
+A marker is displayed for each path on a google map.  When the marker is clicked, the full route line is shown,
+as well as an info window with additional information about the route: description, an image, and a URL to link to.
 
 ##Dependencies:
 
-A server with PHP and MySQL installed.   Sorry not sure which versions are needed, but nothing fancy is
-being done, so if it's not older that 2008 vintage you should be fine.
+A server with PHP and MySQL installed.   Sorry, not sure which versions are needed, but nothing too fancy is
+being done, so if it's not older that 2008 vintage you should be fine.  The administration interface will not
+run on Internet explorer version 8 or older.
 
 ##Sample screen shots:
 
