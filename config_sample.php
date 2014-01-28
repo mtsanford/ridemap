@@ -28,6 +28,8 @@ $CONFIG = array(
 	// https://developers.google.com/maps/signup
 	'GOOGLEMAPS_API_KEY' => "",	
 
+	// Defaults for display of routes.   These only apply when using
+	// index.php, or index.php in an iframe.
 	'ROUTE_DEFAULTS' => array(
 	
 		// Default picture to use in info windows if not specified

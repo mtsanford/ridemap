@@ -11,18 +11,28 @@
  */
 
 var Ridemap = function(id, opts) {
-	this.opts = $.extend(Ridemap.utils.getUrlParameters(['q', 'label', 'tag', 'region', 'wheelzoom', 'openinfo']), opts);
+	this.opts = $.extend(Ridemap.utils.getUrlParameters(['q', 'label', 'tag', 'region', 'wheelzoom', 'openinfo', 'maptype']), opts);
 	
 	// Having no default route color specified will not do.
 	if ((typeof this.opts.ROUTE_COLOR == "undefined") ||  this.opts.ROUTE_COLOR.length == 0) {
 		this.opts.ROUTE_COLOR = "#55F";
 	}
 	
+	var mapTypeId;
+	switch (this.opts.maptype) {
+		case 'TERRAIN': mapTypeId = google.maps.MapTypeId.TERRAIN; break;
+		case 'SATELLITE': mapTypeId = google.maps.MapTypeId.SATELLITE; break;
+		case 'HYBRID': mapTypeId = google.maps.MapTypeId.HYBRID; break;
+		default: mapTypeId = google.maps.MapTypeId.ROADMAP; break;
+	}
+	
+	console.log(this.opts);
+	
 	this.admin = this.opts.mode && (this.opts.mode == 'admin');
 	this.routes = [];
 	this.activeRoute = 0;
 	this.element = document.getElementById(id);
-	this.map = new google.maps.Map(this.element, { mapTypeId: google.maps.MapTypeId.ROADMAP });
+	this.map = new google.maps.Map(this.element, { mapTypeId: mapTypeId });
 	
 	// The route set to include in the map can be restricted by tag OR by region
 	var fetchParams = {};
