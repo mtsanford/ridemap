@@ -64,12 +64,16 @@ all routes in the database are shown.
 
 ###Examples
 
-``` http://localhost/ridemap3/index.php?label=riverroad,shastaloop&maptype=TERRAIN
+```
+http://localhost/ridemap3/index.php?label=riverroad,shastaloop&maptype=TERRAIN
+```
 
 This will load all route markers, and load the route lines for the routes labeled 'riverroad' and
 'shastaloop', and center the map on them.   The map will show terrain rather than roads.
 
-``` http://localhost/ridemap3/?region=37.65,-122.5,37.8,-122.3
+```
+http://localhost/ridemap3/?region=37.65,-122.5,37.8,-122.3
+```
 
 This will load only the route markers for routes that intersect the region (roughly San Francisco),
 and centers the map on them.
